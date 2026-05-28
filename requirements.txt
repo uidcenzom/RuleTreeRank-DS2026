@@ -1,0 +1,11 @@
+RuleTree==2026.4.9.93533
+joblib>=1.3,<2
+lightgbm>=4,<5
+line-profiler-pycharm>=1.2,<2
+matplotlib>=3.8,<4
+numpy>=1.26,<3
+pandas>=2,<3
+reportlab>=4,<5
+scikit-learn>=1.4,<2
+seaborn>=0.13,<0.14
+tqdm>=4.66,<5
