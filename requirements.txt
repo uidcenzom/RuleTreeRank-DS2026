@@ -6,6 +6,6 @@ matplotlib>=3.8,<4
 numpy>=1.26,<3
 pandas>=2,<3
 reportlab>=4,<5
-scikit-learn>=1.4,<2
+scikit-learn>=1.6,<1.9
 seaborn>=0.13,<0.14
 tqdm>=4.66,<5
