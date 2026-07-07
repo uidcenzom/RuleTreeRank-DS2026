@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsRegressor
 
 from ltr_utility import RankerModel, ModelParam, TreeModel
 from ltr_utility.dataset import LtrDataset
-from ruletreerank import MixedRTR, PairwiseDistanceTree, KNNRegFast, RuleTreeRank
+from ruletreerank import MixedRTR, PairwiseDistanceTree, KNNRegFast, RuleTreeRank, RuleCardPairwiseDistance
 
 
 class WrapperLGBMRanker(RankerModel):
@@ -80,6 +80,31 @@ class WrapperMixRTR(MixedRTR):
                 "feature_sq_diff": kwargs["feature_sq_diff"],
                 "subsample": kwargs["subsample"],
                 "verbose": kwargs["verbose"],
+            }),
+            aggregation_f=ModelParam(KNNRegFast, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}),
+            base_regressor=RuleTreeRegressor(
+                max_depth=kwargs["sdt_depth"],
+                max_leaf_nodes=kwargs["sdt_max_leaf_nodes"],
+                min_samples_split=kwargs["min_samples_split"]),
+            dist_objective=kwargs["dist_objective"],
+            verbose=kwargs["verbose"],
+            n_jobs_leaf=kwargs["n_jobs_leaf"],
+        )
+
+class WrapperMixRTRRuleCard(MixedRTR):
+    """MixedRTR (query-aware) with the PDT replaced by a RuleCard pairwise-distance (RTRwRuleCard)."""
+    def __init__(self, **kwargs):
+        super().__init__(
+            distance_f=ModelParam(RuleCardPairwiseDistance, {
+                "base_regressor": ModelParam(RuleTreeRegressor, {"max_depth": kwargs["pdt_depth"]}),
+                "feature_concat": kwargs["feature_concat"],
+                "feature_diff": kwargs["feature_diff"],
+                "feature_sq_diff": kwargs["feature_sq_diff"],
+                "subsample": kwargs["subsample"],
+                "verbose": kwargs["verbose"],
+                "learning_rate": kwargs.get("rulecard_lr", 0.1),
+                "max_n_iter": kwargs.get("rulecard_max_n_iter", 50),
+                "patience": kwargs.get("rulecard_patience", 5),
             }),
             aggregation_f=ModelParam(KNNRegFast, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}),
             base_regressor=RuleTreeRegressor(
