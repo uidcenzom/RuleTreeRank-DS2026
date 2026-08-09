@@ -1,16 +1,20 @@
 """
-RuleCard-based pairwise distance for RuleTreeRank (RTRwRuleCard).
+Modello di distanza pairwise basato su RuleCard per RuleTreeRank (RTRwRuleCard).
 
-Replacement for PairwiseDistanceTree: the pairwise distance target is regressed
-by PairwiseRuleCardGAM (an additive boosted RuleCard) instead of a single
-RuleTreeRegressor. The interface is the same as the PDT: fit builds the pairwise
-dataset and trains the model, predict returns the distances for pairs of rows.
-The distance target is the squared euclidean distance, computed over z when RTR
-passes it (residuals or labels), over the features otherwise, or taken directly
-from the precomputed matrix when given.
+Sostituisce PairwiseDistanceTree nel secondo stadio di RTR. Al posto di un singolo
+albero di regressione, la distanza tra coppie di documenti viene appresa da
+PairwiseRuleCardGAM, cioe' una RuleCard additiva costruita per boosting.
 
-It subclasses PairwiseDistanceTree so that the isinstance check inside
-RuleTreeRank keeps working and no RTR code needs to change.
+L'interfaccia e' la stessa del PDT: fit costruisce il problema pairwise e allena
+il modello, predict restituisce le distanze per coppie di righe. Il bersaglio e'
+la distanza euclidea al quadrato, calcolata sui valori z che RTR passa (i residui
+del primo stadio, oppure le label), oppure sulle feature quando z non c'e', oppure
+presa direttamente dalla matrice gia' pronta.
+
+La classe eredita da PairwiseDistanceTree per un motivo preciso: dentro RuleTreeRank
+c'e' un controllo isinstance(dist, PairwiseDistanceTree) che decide come chiamare il
+fit del modello di distanza. Ereditando dal PDT quel controllo continua a funzionare
+e non serve modificare nemmeno una riga di RTR.
 """
 import copy
 import itertools
@@ -28,11 +32,17 @@ from PairwiseRuleCard.PairwiseRuleCardGAM import PairwiseRuleCardGAM
 
 
 class _CopyableRuleTreeRegressor(RuleTreeRegressor):
-    """RuleTreeRegressor that survives deepcopy.
+    """RuleTreeRegressor che sopravvive alla copia profonda (deepcopy).
 
-    This RuleTree version stores an itertools.count as tiebreaker, which cannot be
-    copied, while the GAM deep-copies its base estimator at every boosting step.
-    A fresh counter on copy is fine because it only breaks ties within a single fit.
+    Questa versione di RuleTree memorizza al suo interno un itertools.count usato
+    per rompere i pareggi tra nodi. I generatori non sono copiabili, mentre la GAM
+    duplica il suo estimatore di base a ogni passo di boosting con copy.deepcopy:
+    senza questa correzione la copia fallirebbe sempre.
+
+    La ridefinizione di __deepcopy__ copia tutto normalmente tranne il contatore,
+    che viene ricreato da zero. E' corretto perche' quel contatore serve solo a
+    rompere i pareggi dentro un singolo allenamento, e ogni copia viene poi
+    riallenata da capo.
     """
 
     def __deepcopy__(self, memo):
@@ -45,7 +55,12 @@ class _CopyableRuleTreeRegressor(RuleTreeRegressor):
 
 
 class RuleCardPairwiseDistance(PairwiseDistanceTree):
-    """Interpretable pairwise-distance regressor backed by an additive RuleCard (GAM)."""
+    """Modello di distanza pairwise interpretabile, basato su una RuleCard additiva (GAM).
+
+    E' il sostituto del PDT nello slot distance_f di RTR. Espone gli stessi metodi
+    del PDT (fit, predict, get_rules) e internamente traduce le chiamate verso
+    PairwiseRuleCardGAM.
+    """
 
     def __init__(self,
                  base_regressor: Optional[Union[ModelParam, RuleTreeRegressor]] = None,
@@ -58,20 +73,40 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
                  max_n_iter: int = 50,
                  patience: int = 5,
                  metric: str = "euclidean",
-                 random_state: Optional[int] = None):
-        # super().__init__() is not called on purpose: the PDT would build a
-        # RuleTreeRegressor that is never used here.
+                 random_state: Optional[int] = None,
+                 strict: bool = False):
+        """Costruisce l'adattatore.
+
+        Parametri principali (gli stessi nomi del PDT, cosi' i wrapper degli
+        esperimenti passano lo stesso dizionario a entrambi i modelli):
+
+        feature_concat: se True la coppia e' rappresentata concatenando le due
+            istanze [a, b]. Mappa su use_pairwise di RuleCard.
+        feature_diff: se True la coppia e' rappresentata dalla differenza assoluta
+            |a - b|. Mappa su use_difference di RuleCard.
+        feature_sq_diff: presente per compatibilita' col PDT ma non supportato da
+            RuleCard, quindi viene ignorato. La differenza assoluta porta comunque
+            la stessa informazione di ordinamento, che e' cio' che serve al kNN.
+        learning_rate, max_n_iter, patience: iperparametri del boosting di RuleCard.
+        strict: se True, quando l'allenamento di RuleCard fallisce oppure non produce
+            alcuna regola viene sollevato un errore invece di ripiegare sulla
+            distanza euclidea. Utile per validare che RuleCard sia davvero in uso.
+            Il caso della cella con meno di tre istanze resta sempre un ripiego,
+            perche' li' un modello pairwise non e' proprio definibile.
+        """
+        # Non chiamo super().__init__() di proposito: il PDT costruirebbe un
+        # RuleTreeRegressor interno che qui non verrebbe mai usato.
         self.feature_concat = feature_concat
         self.feature_diff = feature_diff
         self.feature_sq_diff = feature_sq_diff
         if feature_sq_diff and verbose:
-            print("RuleCardPairwiseDistance: feature_sq_diff is unsupported by RuleCard and is ignored.")
+            print("RuleCardPairwiseDistance: feature_sq_diff non e' supportato da RuleCard e viene ignorato.")
 
-        # feature_concat maps to use_pairwise, feature_diff maps to use_difference
+        # feature_concat corrisponde a use_pairwise, feature_diff a use_difference
         self._use_pairwise = bool(feature_concat)
         self._use_difference = bool(feature_diff)
         if not self._use_pairwise and not self._use_difference:
-            # RuleCard needs at least one pair representation
+            # RuleCard ha bisogno di almeno una rappresentazione della coppia
             self._use_difference = True
 
         self.subsample = subsample
@@ -80,8 +115,9 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         self.max_n_iter = max_n_iter
         self.patience = patience
         self.metric = metric
+        self.strict = strict
 
-        # kept as a spec and instantiated at every fit to avoid shared state
+        # tenuto come specifica e istanziato a ogni fit per evitare stato condiviso
         self._base_regressor = base_regressor
         if isinstance(base_regressor, ModelParam):
             self.random_state = base_regressor.param.get("random_state", random_state)
@@ -93,9 +129,18 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         self.num_features_: Optional[int] = None
         self.gam_: Optional[PairwiseRuleCardGAM] = None
         self._offset_: float = 0.0
-        self._fallback: bool = False  # when True predict uses the plain squared euclidean distance
+        # quando True predict usa la distanza euclidea al quadrato invece di RuleCard
+        self._fallback: bool = False
+        # motivo del ripiego, utile per contarli a fine esperimento
+        # (None, "poche_istanze", "fit_fallito" oppure "modello_vuoto")
+        self._fallback_reason: Optional[str] = None
 
     def _make_base_estimator(self) -> RuleTreeRegressor:
+        """Crea l'estimatore di base da passare alla GAM a ogni allenamento.
+
+        Se e' un RuleTreeRegressor lo avvolge nella versione copiabile, cosi' la
+        GAM puo' duplicarlo a ogni passo di boosting senza andare in errore.
+        """
         br = self._base_regressor
         if isinstance(br, ModelParam):
             if isinstance(br.model, type) and issubclass(br.model, RuleTreeRegressor):
@@ -109,11 +154,18 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
 
     def _pair_target(self, Xm: ndarray, z: Optional[ndarray],
                      distances: Optional[ndarray], mask: ndarray, n_full: int) -> ndarray:
-        """Build the squared distance target matrix, same semantics as the PDT."""
+        """Costruisce il bersaglio (la matrice delle distanze da apprendere).
+
+        Segue la stessa logica del PDT:
+        - se RTR passa una matrice di distanze gia' calcolata, si usa quella;
+        - se passa z (i residui del primo stadio), il bersaglio e' la distanza
+          euclidea al quadrato tra i residui, cioe' (z_i - z_j)^2;
+        - altrimenti si usa la distanza euclidea al quadrato tra le feature.
+        """
         if distances is not None:
             D = np.asarray(distances)
             if D.shape[0] == n_full:
-                # full matrix given, keep only the masked block
+                # e' stata passata la matrice intera: tengo solo il blocco mascherato
                 D = D[np.ix_(mask, mask)]
             return D
         if z is not None:
@@ -122,7 +174,12 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         return euclidean_distances(Xm, squared=True)
 
     def _raw_predict(self, x_a: ndarray, x_b: ndarray) -> ndarray:
-        """Additive RuleCard score, without the batch dependent offset of GAM.predict."""
+        """Somma additiva della RuleCard, senza l'offset che dipende dal blocco.
+
+        Ricostruisce la previsione della GAM (valore base piu' il contributo di
+        ogni alberello moltiplicato per il learning rate) senza la traslazione
+        finale che la GAM applica in base al minimo del blocco corrente.
+        """
         g = self.gam_
         x_a = np.asarray(x_a, dtype=float)
         x_b = np.asarray(x_b, dtype=float)
@@ -138,7 +195,14 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         return pred
 
     def _compute_offset(self, Xm: ndarray) -> None:
-        """Fixed additive constant that keeps distances non negative without changing the kNN ordering."""
+        """Calcola una costante additiva fissa che tiene le distanze non negative.
+
+        La previsione grezza della RuleCard puo' essere negativa. Sommare una
+        costante uguale a tutte le distanze non cambia l'ordine dei vicini scelti
+        dal kNN, quindi non altera il risultato: serve solo a rispettare la
+        convenzione distanza >= 0. La costante viene stimata una volta sola su un
+        campione di coppie (al massimo 2000) per restare economica.
+        """
         n = Xm.shape[0]
         if n < 2:
             self._offset_ = 0.0
@@ -153,8 +217,16 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
     def fit(self, X: ndarray, z: Optional[ndarray] = None,
             distances: Optional[ndarray] = None,
             mask: Union[ndarray, None, List] = None) -> "RuleCardPairwiseDistance":
+        """Allena la RuleCard sulle coppie della cella indicata dalla maschera.
+
+        La firma e' identica a quella del PDT. La maschera seleziona i documenti
+        della cella (in MixedRTR una cella e' l'intersezione di una foglia e di una
+        query). Il bersaglio viene calcolato con _pair_target e passato alla GAM
+        gia' pronto (mode 'precomputed'), quindi RuleCard non lo ricalcola: e' cosi'
+        che garantiamo lo stesso identico bersaglio del PDT.
+        """
         X = np.asarray(X)
-        assert X.ndim == 2, "X must be a 2D array."
+        assert X.ndim == 2, "X deve essere una matrice bidimensionale."
 
         if mask is None:
             mask = np.ones(X.shape[0], dtype=bool)
@@ -163,10 +235,15 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
 
         self.num_features_ = X.shape[1]
         Xm = X[mask]
+        self._fallback_reason = None
 
-        # too few instances for a meaningful pairwise model, use the euclidean fallback
+        # Caso 1: troppo pochi documenti nella cella. Con meno di tre istanze c'e'
+        # al massimo una coppia e nessun modello di distanza ha senso. Qui il
+        # ripiego sulla euclidea e' strutturale, non un errore, quindi non lo
+        # blocchiamo mai. Va solo contato.
         if Xm.shape[0] < 3:
             self._fallback = True
+            self._fallback_reason = "poche_istanze"
             self.gam_ = None
             return self
 
@@ -183,25 +260,33 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
             metric=self.metric,
             subsample=self.subsample,
             subsample_strategy="random",
-            fast=None,  # avoids the optional interpret dependency
+            fast=None,  # evita la dipendenza opzionale interpret e resta deterministico
             n_jobs=1,
             random_state=42 if self.random_state is None else int(self.random_state),
             verbose=self.verbose,
         )
 
+        # Caso 2: l'allenamento di RuleCard va in errore. Questo non e' strutturale:
+        # se strict e' attivo lo facciamo emergere, altrimenti ripieghiamo.
         try:
             self.gam_.fit(Xm, mode="precomputed", pair_targets=y_pairs)
         except Exception as exc:
-            # if the GAM fit fails this leaf degrades to the euclidean distance
+            if self.strict:
+                raise
             if self.verbose:
-                print(f"RuleCardPairwiseDistance: GAM fit failed ({exc!r}); using euclidean fallback.")
+                print(f"RuleCardPairwiseDistance: allenamento fallito ({exc!r}); uso la euclidea.")
             self._fallback = True
+            self._fallback_reason = "fit_fallito"
             self.gam_ = None
             return self
 
-        # no boosting round improved, the model is constant, fall back for a useful kNN ordering
+        # Caso 3: nessun round di boosting ha migliorato, il modello e' costante e
+        # come distanza sarebbe inutile. Anche qui, se strict e' attivo lo segnaliamo.
         if not getattr(self.gam_, "estimators_", None):
+            if self.strict:
+                raise RuntimeError("RuleCard non ha prodotto alcuna regola: modello costante.")
             self._fallback = True
+            self._fallback_reason = "modello_vuoto"
             self.gam_ = None
             return self
 
@@ -210,20 +295,30 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         return self
 
     def predict(self, x_a: ndarray, x_b: ndarray) -> ndarray:
+        """Restituisce la distanza appresa per le coppie allineate (x_a[i], x_b[i]).
+
+        Se la cella e' finita in ripiego usa la distanza euclidea al quadrato,
+        cioe' lo stesso bersaglio che il modello avrebbe dovuto imparare.
+        """
         x_a = np.asarray(x_a, dtype=float)
         x_b = np.asarray(x_b, dtype=float)
-        assert x_a.shape == x_b.shape, "x_a and x_b must have the same shape."
+        assert x_a.shape == x_b.shape, "x_a e x_b devono avere la stessa forma."
         assert x_a.shape[1] == self.num_features_, \
-            "Input features must match the number of features seen during training."
+            "Il numero di feature deve coincidere con quello visto in allenamento."
 
         if self._fallback or self.gam_ is None:
-            # squared euclidean, same as the PDT target
+            # distanza euclidea al quadrato, lo stesso bersaglio del PDT
             return np.sum((x_a - x_b) ** 2, axis=1)
 
         return self._raw_predict(x_a, x_b) + self._offset_
 
     def get_rules(self, columns_names: Optional[List] = None) -> List[dict]:
-        """Additive rules: one shallow RuleTreeRegressor per boosting round."""
+        """Restituisce le regole additive: una per ogni round di boosting.
+
+        Ogni voce e' un piccolo albero costruito in un round. L'ordine dei round e'
+        anche l'ordine di importanza decrescente, perche' a ogni round si sceglie la
+        feature che riduce di piu' l'errore rimasto.
+        """
         if self.gam_ is None or not getattr(self.gam_, "estimators_", None):
             return []
 
@@ -249,6 +344,7 @@ class RuleCardPairwiseDistance(PairwiseDistanceTree):
         return out
 
     def construct_feat_dict(self, columns_names: ndarray) -> dict:
+        """Mappa gli indici delle colonne pairwise ai nomi leggibili delle feature."""
         nf = self.num_features_
         d, c = {}, 0
         if self.gam_ is not None and self.gam_.use_pairwise:

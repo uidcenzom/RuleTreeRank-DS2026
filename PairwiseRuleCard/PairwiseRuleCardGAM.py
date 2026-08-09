@@ -1,9 +1,14 @@
+# Questo file arriva dal gruppo di ricerca (repo PairwiseRankCard) ed e' stato
+# copiato qui dentro per rendere il progetto autosufficiente. La sola modifica
+# nostra e' rendere opzionali gli import pesanti (interpret e catboost/xgboost),
+# che servono solo a funzioni che non usiamo: cosi' il pacchetto gira anche senza
+# quelle librerie installate. Gli import sono avvolti in try/except qui sotto.
 import copy
 
 import numpy as np
 from RuleTree import RuleTreeRegressor
 try:
-    # Only needed when fast != None (interaction detection). Optional heavy dependency.
+    # Serve solo quando fast e' diverso da None. Dipendenza pesante e opzionale.
     from interpret.utils import measure_interactions
 except Exception:  # pragma: no cover - optional dependency
     measure_interactions = None
@@ -13,7 +18,8 @@ from scipy.spatial.distance import cosine
 from tqdm.auto import tqdm
 
 try:
-    # Only needed for importance-based subsampling strategies (catboost/xgboost). Optional.
+    # Serve solo per le strategie di sottocampionamento basate su importanza
+    # (catboost/xgboost). Anche questa e' opzionale.
     from PairwiseRuleCard.feat_importance_wrapper import *
 except Exception:  # pragma: no cover - optional dependency
     pass
