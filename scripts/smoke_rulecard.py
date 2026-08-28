@@ -39,4 +39,10 @@ print("distance model type:", type(dist).__name__, "| fallback:", getattr(dist, 
 if dist is not None and hasattr(dist, "get_rules"):
     rules = dist.get_rules(columns_names=[f"f{i}" for i in range(5)])
     print("n additive estimators:", len(rules))
+
+# la distanza deve variare: un modello costante passerebbe tutti i controlli
+# sopra ma non distinguerebbe alcun vicino, e il kNN sceglierebbe per indice
+xf = agg._fit_X
+d_all = dist.predict(np.repeat(xf[:1], len(xf), axis=0), xf)
+print("distinct distances:", len(np.unique(d_all)), "over", len(d_all), "pairs")
 print("SMOKE OK")
