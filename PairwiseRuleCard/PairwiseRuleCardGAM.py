@@ -1,8 +1,25 @@
 # Questo file arriva dal gruppo di ricerca (repo PairwiseRankCard) ed e' stato
-# copiato qui dentro per rendere il progetto autosufficiente. La sola modifica
-# nostra e' rendere opzionali gli import pesanti (interpret e catboost/xgboost),
-# che servono solo a funzioni che non usiamo: cosi' il pacchetto gira anche senza
-# quelle librerie installate. Gli import sono avvolti in try/except qui sotto.
+# copiato qui dentro per rendere il progetto autosufficiente.
+#
+# Le modifiche rispetto all'originale sono tre, tutte segnate con un commento
+# nel punto in cui compaiono:
+#
+#   1. Import opzionali (qui sotto). interpret e catboost/xgboost servono solo
+#      a funzioni che non usiamo, e sono avvolti in try/except: cosi' il
+#      pacchetto gira anche senza quelle librerie installate.
+#
+#   2. Minibatch vuoto (fit, "avoid empty minibatches"). Il campionamento
+#      interno prende il 10% delle righe: con foglie piccole 10% di 8 righe
+#      da' 0 e il fit falliva. Ora il minimo e' una riga.
+#
+#   3. Argomenti di simmetria nel ramo a thread singolo (fit, "pass the
+#      symmetry arguments"). Il ramo n_jobs=1 non li passava alla funzione
+#      interna, a differenza del ramo parallelo: i due percorsi si
+#      comportavano in modo diverso.
+#
+# La 2 e la 3 riguardano casi che prima andavano in errore o divergevano fra i
+# due rami, quindi non alterano risultati gia' prodotti. Da segnalare comunque
+# al gruppo.
 import copy
 
 import numpy as np

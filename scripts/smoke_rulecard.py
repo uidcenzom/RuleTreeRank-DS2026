@@ -15,13 +15,13 @@ q = np.repeat(np.arange(12), 10)
 model = RuleTreeRank(
     distance_f=ModelParam(RuleCardPairwiseDistance, {
         "base_regressor": ModelParam(RuleTreeRegressor, {"max_depth": 2, "random_state": 0}),
-        "feature_concat": False, "feature_diff": True, "feature_sq_diff": True,
-        "subsample": 0.6, "verbose": False,
+        "feature_concat": True, "feature_diff": True, "feature_sq_diff": False,
+        "subsample": 1.0, "verbose": False,
         "learning_rate": 0.2, "max_n_iter": 25, "patience": 3,
     }),
     aggregation_f=ModelParam(KNNRegFast, {"n_neighbors": 5, "n_jobs": 1}),
     base_regressor=RuleTreeRegressor(max_depth=2, random_state=0),
-    dist_objective="residuals",
+    dist_objective="dist",
     verbose=False,
 )
 model.fit(X, y, q)

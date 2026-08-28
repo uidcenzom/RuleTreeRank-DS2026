@@ -14,3 +14,6 @@ venv/
 
 # Datasets (LETOR/MQ2007 etc.: large files, downloaded separately)
 datasets/
+
+# Jupyter / Anaconda project files
+anaconda_projects/

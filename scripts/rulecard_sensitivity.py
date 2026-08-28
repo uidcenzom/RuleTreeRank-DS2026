@@ -42,12 +42,12 @@ train, valid, test = generate_query_synthetic_ltr(
 train_valid = LtrDataset.concat(train, valid)
 print(f"train_valid={train_valid} | test={test}", flush=True)
 
-# configurazione di partenza, uguale a quella degli esperimenti
+# Configurazione di partenza: stessi iperparametri di mq2007_compare.py
 base = dict(
-    pdt_depth=2, feature_concat=False, feature_diff=True, feature_sq_diff=False,
-    subsample=0.5, verbose=False, n_neighbors=5,
-    sdt_depth=3, sdt_max_leaf_nodes=None, min_samples_split=2,
-    dist_objective="residuals", n_jobs_leaf=1,
+    pdt_depth=4, sdt_depth=6, n_neighbors=5,
+    feature_concat=True, feature_diff=True, feature_sq_diff=False,
+    subsample=1.0, sdt_max_leaf_nodes=None, min_samples_split=2,
+    dist_objective="dist", verbose=False, n_jobs_leaf=1,
     rulecard_lr=0.2, rulecard_max_n_iter=20, rulecard_patience=3,
 )
 

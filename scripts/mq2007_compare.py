@@ -3,7 +3,7 @@ Confronto RTR (PDT) vs RTRwRuleCard su MQ2007 (LETOR 4.0, Fold1).
 
 Protocollo come nel paper DS2026: prime 500 query con >=10 item, split within-query
 (train+valid 70% / test 30%), NDCG@10 a |phi| in {1, 2, 4, 6, 10}.
-Iperparametri raccomandati dal paper: d_r=5 (albero di r), d_s=4 (PDT), |xi-xj| attive.
+Iperparametri come nel protocollo del gruppo (griglia del 27 agosto 2026).
 Seed fissato anche nel PDT (via random_state del base_regressor) per riproducibilita'.
 
 Risultati salvati incrementalmente in scripts/mq2007_compare.csv.
@@ -35,12 +35,14 @@ train, valid, test, train_valid = load_by_query_dataset(
     REPO_ROOT / "datasets", DatasetName.MQ, hold_out=(0.5, 0.2, 0.3))
 print(f"train_valid={train_valid} | test={test}", flush=True)
 
-# iperparametri comuni, quelli raccomandati dal paper
+# Iperparametri del protocollo del gruppo, identici per i due modelli.
+# sdt_depth e' provvisorio: la griglia e' [2, 4, 6, 8] e il valore definitivo
+# lo decide la model selection.
 COMMON = dict(
-    pdt_depth=4, sdt_depth=5, n_neighbors=5,
-    feature_concat=False, feature_diff=True, feature_sq_diff=True,
-    subsample=0.5, sdt_max_leaf_nodes=None, min_samples_split=2,
-    dist_objective="residuals", verbose=False, n_jobs_leaf=1,
+    pdt_depth=4, sdt_depth=6, n_neighbors=5,
+    feature_concat=True, feature_diff=True, feature_sq_diff=False,
+    subsample=1.0, sdt_max_leaf_nodes=None, min_samples_split=2,
+    dist_objective="dist", verbose=False, n_jobs_leaf=1,
 )
 
 

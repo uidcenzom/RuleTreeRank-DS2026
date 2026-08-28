@@ -38,21 +38,13 @@ print(f"train_valid: {train_valid}  | test: {test}")
 print(f"unique queries train_valid={len(train_valid.unique_q)}, test={len(test.unique_q)}")
 print(f"relevance labels: {sorted(np.unique(test.y).tolist())}")
 
-# configurazione RTR analoga a quella usata negli esperimenti
-rtr_params = {
-    "pdt_depth": 2,
-    "feature_concat": False,
-    "feature_diff": True,
-    "feature_sq_diff": True,
-    "subsample": 0.5,
-    "verbose": False,
-    "n_neighbors": 5,
-    "sdt_depth": 3,
-    "sdt_max_leaf_nodes": None,
-    "min_samples_split": 2,
-    "dist_objective": "residuals",
-    "n_jobs_leaf": 1,
-}
+# Stessi iperparametri di mq2007_compare.py
+rtr_params = dict(
+    pdt_depth=4, sdt_depth=6, n_neighbors=5,
+    feature_concat=True, feature_diff=True, feature_sq_diff=False,
+    subsample=1.0, sdt_max_leaf_nodes=None, min_samples_split=2,
+    dist_objective="dist", verbose=False, n_jobs_leaf=1,
+)
 
 PHIS = [1, 2, 4, 6]
 K = 10
