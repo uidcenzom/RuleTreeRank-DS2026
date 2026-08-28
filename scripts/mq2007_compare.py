@@ -4,7 +4,7 @@ Confronto RTR (PDT) vs RTRwRuleCard su MQ2007 (LETOR 4.0, Fold1).
 Protocollo come nel paper DS2026: prime 500 query con >=10 item, split within-query
 (train+valid 70% / test 30%), NDCG@10 a |phi| in {1, 2, 4, 6, 10}.
 Iperparametri come nel protocollo del gruppo (griglia del 27 agosto 2026).
-Seed fissato anche nel PDT (via random_state del base_regressor) per riproducibilita'.
+Seed fissato anche nel PDT (via random_state del base_regressor) per riproducibilità.
 
 Risultati salvati incrementalmente in scripts/mq2007_compare.csv.
 """
@@ -36,7 +36,7 @@ train, valid, test, train_valid = load_by_query_dataset(
 print(f"train_valid={train_valid} | test={test}", flush=True)
 
 # Iperparametri del protocollo del gruppo, identici per i due modelli.
-# sdt_depth e' provvisorio: la griglia e' [2, 4, 6, 8] e il valore definitivo
+# sdt_depth è provvisorio: la griglia è [2, 4, 6, 8] e il valore definitivo
 # lo decide la model selection.
 COMMON = dict(
     pdt_depth=4, sdt_depth=6, n_neighbors=5,

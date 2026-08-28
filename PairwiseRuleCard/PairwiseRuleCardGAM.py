@@ -1,16 +1,16 @@
-# Questo file arriva dal gruppo di ricerca (repo PairwiseRankCard) ed e' stato
+# Questo file arriva dal gruppo di ricerca (repo PairwiseRankCard) ed è stato
 # copiato qui dentro per rendere il progetto autosufficiente.
 #
 # Le modifiche rispetto all'originale sono tre, tutte segnate con un commento
 # nel punto in cui compaiono:
 #
 #   1. Import opzionali (qui sotto). interpret e catboost/xgboost servono solo
-#      a funzioni che non usiamo, e sono avvolti in try/except: cosi' il
+#      a funzioni che non usiamo, e sono avvolti in try/except: così il
 #      pacchetto gira anche senza quelle librerie installate.
 #
 #   2. Minibatch vuoto (fit, "avoid empty minibatches"). Il campionamento
 #      interno prende il 10% delle righe: con foglie piccole 10% di 8 righe
-#      da' 0 e il fit falliva. Ora il minimo e' una riga.
+#      dà 0 e il fit falliva. Ora il minimo è una riga.
 #
 #   3. Argomenti di simmetria nel ramo a thread singolo (fit, "pass the
 #      symmetry arguments"). Il ramo n_jobs=1 non li passava alla funzione
@@ -18,14 +18,14 @@
 #      comportavano in modo diverso.
 #
 # La 2 e la 3 riguardano casi che prima andavano in errore o divergevano fra i
-# due rami, quindi non alterano risultati gia' prodotti. Da segnalare comunque
+# due rami, quindi non alterano risultati già prodotti. Da segnalare comunque
 # al gruppo.
 import copy
 
 import numpy as np
 from RuleTree import RuleTreeRegressor
 try:
-    # Serve solo quando fast e' diverso da None. Dipendenza pesante e opzionale.
+    # Serve solo quando fast è diverso da None. Dipendenza pesante e opzionale.
     from interpret.utils import measure_interactions
 except Exception:  # pragma: no cover - optional dependency
     measure_interactions = None
@@ -36,7 +36,7 @@ from tqdm.auto import tqdm
 
 try:
     # Serve solo per le strategie di sottocampionamento basate su importanza
-    # (catboost/xgboost). Anche questa e' opzionale.
+    # (catboost/xgboost). Anche questa è opzionale.
     from PairwiseRuleCard.feat_importance_wrapper import *
 except Exception:  # pragma: no cover - optional dependency
     pass

@@ -6,15 +6,15 @@ numero di documenti di training presenti nella stessa cella. Serve a rispondere
 alla domanda se il ripiego sulla distanza euclidea possa falsare i risultati.
 
 Tre fasce:
-  meno di 3   -> qui scatta il ripiego di RuleCard (una cella cosi' piccola non
+  meno di 3   -> qui scatta il ripiego di RuleCard (una cella così piccola non
                  permette di allenare un modello di distanza)
-  al massimo 5 -> qui il kNN veloce ignora comunque la distanza, perche' con
-                 n_neighbors=5 e non piu' di 5 vicini restituisce la media dei
+  al massimo 5 -> qui il kNN veloce ignora comunque la distanza, perché con
+                 n_neighbors=5 e non più di 5 vicini restituisce la media dei
                  residui senza usare la distanza appresa
-  piu' di 5   -> qui la distanza appresa (RuleCard o PDT) viene davvero usata
+  più di 5   -> qui la distanza appresa (RuleCard o PDT) viene davvero usata
 
 Lo script non allena RuleCard: la ripartizione dipende solo dai dati e
-dall'albero del primo stadio, quindi e' veloce.
+dall'albero del primo stadio, quindi è veloce.
 """
 import sys
 from pathlib import Path
@@ -30,7 +30,7 @@ from ltr_utility.dataset import load_by_query_dataset, DatasetName
 
 SEED = 7
 K = 5           # n_neighbors usato negli esperimenti
-SDT_DEPTH = 5   # profondita' albero del primo stadio, come nel paper
+SDT_DEPTH = 5   # profondità albero del primo stadio, come nel paper
 PHIS = [1, 2, 4, 6, 10]
 
 train, valid, test, train_valid = load_by_query_dataset(
@@ -83,5 +83,5 @@ for phi in PHIS:
     pg = 100 * conte[">5"] / n_test
     print(f"{phi:>4} | {p3:>12.1f}% | {p5:>20.1f}% | {pg:>15.1f}%", flush=True)
 
-print("\nLa colonna '<=5' e' cumulativa e include '<3'.")
+print("\nLa colonna '<=5' è cumulativa e include '<3'.")
 print("La distanza appresa incide solo sulla fascia '>5'.")

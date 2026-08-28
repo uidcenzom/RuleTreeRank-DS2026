@@ -1,13 +1,13 @@
 """
-Analisi di sensibilita' sugli iperparametri propri di RuleCard.
+Analisi di sensibilità sugli iperparametri propri di RuleCard.
 
 Negli esperimenti principali gli iperparametri di RuleCard erano fissi
 (learning rate 0.2, massimo 20 iterazioni, patience 3). Qui li facciamo variare
 uno alla volta attorno a quella configurazione di partenza, per vedere come
-cambiano qualita' del ranking (NDCG@10) e tempo di allenamento.
+cambiano qualità del ranking (NDCG@10) e tempo di allenamento.
 
-Si lavora sul dataset sintetico, che e' veloce: l'obiettivo e' misurare la
-sensibilita', non cercare la configurazione ottimale (quella sarebbe una model
+Si lavora sul dataset sintetico, che è veloce: l'obiettivo è misurare la
+sensibilità, non cercare la configurazione ottimale (quella sarebbe una model
 selection, un'altra cosa). Un solo valore di |phi| basta allo scopo.
 
 I risultati vengono salvati in scripts/rulecard_sensitivity.csv.
@@ -83,7 +83,7 @@ for nome, override in configurazioni:
                   "fit_s": round(fit_time, 1)})
 
 df = pd.DataFrame(righe)
-print("\nRisultati sensibilita' RuleCard (|phi|={}):".format(PHI))
+print("\nRisultati sensibilità RuleCard (|phi|={}):".format(PHI))
 print(df.to_string(index=False))
 
 out = Path(__file__).resolve().parent / "rulecard_sensitivity.csv"
