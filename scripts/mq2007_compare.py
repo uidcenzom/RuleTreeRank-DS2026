@@ -36,10 +36,11 @@ train, valid, test, train_valid = load_by_query_dataset(
 print(f"train_valid={train_valid} | test={test}", flush=True)
 
 # Iperparametri del protocollo del gruppo, identici per i due modelli.
-# sdt_depth è provvisorio: la griglia è [2, 4, 6, 8] e il valore definitivo
-# lo decide la model selection.
+# sdt_depth e pdt_depth sono i valori raccomandati nel paper (dr=5, ds=4).
+# Nella loro griglia di model selection sdt_depth è [2, 4, 6, 8], senza il 5:
+# il valore definitivo lo decide la selezione.
 COMMON = dict(
-    pdt_depth=4, sdt_depth=6, n_neighbors=5,
+    pdt_depth=4, sdt_depth=5, n_neighbors=5,
     feature_concat=True, feature_diff=True, feature_sq_diff=False,
     subsample=1.0, sdt_max_leaf_nodes=None, min_samples_split=2,
     dist_objective="dist", verbose=False, n_jobs_leaf=1,

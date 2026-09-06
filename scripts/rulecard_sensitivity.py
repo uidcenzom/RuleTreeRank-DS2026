@@ -44,7 +44,7 @@ print(f"train_valid={train_valid} | test={test}", flush=True)
 
 # Configurazione di partenza: stessi iperparametri di mq2007_compare.py
 base = dict(
-    pdt_depth=4, sdt_depth=6, n_neighbors=5,
+    pdt_depth=4, sdt_depth=5, n_neighbors=5,
     feature_concat=True, feature_diff=True, feature_sq_diff=False,
     subsample=1.0, sdt_max_leaf_nodes=None, min_samples_split=2,
     dist_objective="dist", verbose=False, n_jobs_leaf=1,
