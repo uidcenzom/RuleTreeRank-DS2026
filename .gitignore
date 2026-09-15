@@ -20,3 +20,6 @@ datasets/
 
 # Jupyter / Anaconda project files
 anaconda_projects/
+
+# Modelli allenati salvati dagli esperimenti: pesanti, restano solo in locale
+results/**/modello.pkl
