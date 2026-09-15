@@ -44,8 +44,8 @@ from ltr_utility import ModelParam
 from ltr_utility.dataset import load_by_query_dataset, load_query_similarity, DatasetName
 from ltr_utility.model_selection.evaluation import evaluate
 from ruletreerank import QueryRanker
-from experiments.wrappers import (WrapperMixRTR, WrapperMixRTRRuleCard, WrapperKNN, WrapperLGBMRanker,
-                                  RandomRanker)
+from experiments.wrappers import WrapperKNN, WrapperLGBMRanker, RandomRanker
+from experiments.varianti import WrapperMixRTRVariante
 
 K_NDCG = 10
 
@@ -61,26 +61,44 @@ def leggi_argomenti():
     p.add_argument("--dati", type=Path, default=REPO / "datasets")
     p.add_argument("--risultati", type=Path, default=REPO / "results")
     p.add_argument("--n-jobs-leaf", type=int, default=1)
+    p.add_argument("--k", type=int, default=5, help="vicini del kNN nel secondo stadio (rtr e rtrwrulecard)")
+    p.add_argument("--knn-pesato", action="store_true",
+                   help="media dei residui dei vicini pesata per 1/distanza invece che uniforme")
+    p.add_argument("--min-doc-foglia", type=int, default=None,
+                   help="numero minimo di documenti di training per foglia nel primo stadio")
     p.add_argument("--senza-modello", action="store_true", help="non salvare il modello allenato")
     return p.parse_args()
 
 
-def parametri_variante(variante, n_jobs_leaf):
+def nome_variante(args):
+    """Nome della cartella dei risultati: la variante più le opzioni che la cambiano."""
+    nome = args.variante
+    if args.k != 5:
+        nome += f"_k{args.k}"
+    if args.knn_pesato:
+        nome += "_pesato"
+    if args.min_doc_foglia:
+        nome += f"_minfoglia{args.min_doc_foglia}"
+    return nome
+
+
+def parametri_variante(args):
     """Iperparametri di ogni variante, tutti in un punto."""
     # Fissati dal gruppo nella griglia del 27 agosto. Profondità, k, uso della differenza
     # e target della distanza sono quelli raccomandati nel paper: restano provvisori finché
     # non arriva la model selection.
-    rtr = dict(sdt_depth=5, pdt_depth=4, n_neighbors=5, feature_diff=True, dist_objective="dist",
+    rtr = dict(sdt_depth=5, pdt_depth=4, n_neighbors=args.k, feature_diff=True, dist_objective="dist",
                feature_concat=True, feature_sq_diff=False, subsample=1.0, sdt_max_leaf_nodes=None,
-               min_samples_split=2, verbose=False, n_jobs_leaf=n_jobs_leaf)
-    match variante:
+               min_samples_split=2, verbose=False, n_jobs_leaf=args.n_jobs_leaf,
+               knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia, random_state=args.seed)
+    match args.variante:
         case "rtr":
-            return WrapperMixRTR, rtr
+            return WrapperMixRTRVariante, {**rtr, "distanza": "pdt"}
         case "rtrwrulecard":
             # lr = 1 come indicato da Landi il 15 settembre. Patience 15 e massimo 100 round sono
             # i valori degli esperimenti del paper di RuleCard (che prova anche 500 round).
-            return WrapperMixRTRRuleCard, {**rtr, "rulecard_lr": 1.0, "rulecard_max_n_iter": 100,
-                                           "rulecard_patience": 15}
+            return WrapperMixRTRVariante, {**rtr, "distanza": "rulecard", "rulecard_lr": 1.0,
+                                           "rulecard_max_n_iter": 100, "rulecard_patience": 15}
         case "knn":
             # k provvisorio, lo stesso del secondo stadio di RTR
             return WrapperKNN, dict(n_neighbors=5)
@@ -130,6 +148,21 @@ def quota_distanza(ranker, X, q, k):
     return {c: conte[c] / totale for c in ["oltre_k_voti_diversi", "oltre_k_stesso_voto", "al_piu_k", "vuoto"]}
 
 
+def quota_distanza_pesata(ranker, X, q):
+    """Con la media pesata la distanza conta in ogni gruppo con almeno due documenti di voto diverso."""
+    incide = totale = 0
+    for modello, qs in ranker._models_to_qs.items():
+        maschera = np.isin(q, qs)
+        if not maschera.any():
+            continue
+        foglie = np.asarray(modello._shallow_dt.apply(X[maschera]))
+        for foglia, qq in zip(foglie.tolist(), q[maschera].tolist()):
+            agg = modello._leaf_dist_map.get((foglia, int(qq)))
+            totale += 1
+            incide += agg is not None and np.unique(np.round(np.asarray(agg._y).ravel(), 10)).size > 1
+    return incide / totale
+
+
 def statistiche_gam(ranker, max_round):
     motivi, rounds, tipi = Counter(), [], Counter()
     for modello in ranker._models_to_qs:
@@ -166,7 +199,7 @@ def commit_corrente():
 
 
 def esegui_phi(args, phi, train_valid, test, cls, params):
-    cartella = args.risultati / args.dataset / args.variante / f"phi{phi}" / f"seed{args.seed}"
+    cartella = args.risultati / args.dataset / nome_variante(args) / f"phi{phi}" / f"seed{args.seed}"
     if (cartella / "metriche.json").exists():
         print(f"|phi|={phi}: già fatto, salto ({cartella})", flush=True)
         return
@@ -178,7 +211,7 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
     X, q, y = np.asarray(te.x), np.asarray(te.q), np.asarray(te.y)
 
     config = {
-        "dataset": args.dataset, "variante": args.variante, "phi": phi, "seed": args.seed,
+        "dataset": args.dataset, "variante": nome_variante(args), "phi": phi, "seed": args.seed,
         "max_gruppi": args.max_gruppi, "modello": cls.__name__, "parametri": params,
         "n_query": len(query), "documenti_train": int(len(tr.y)), "documenti_test": int(len(y)),
         "gruppi_di_query": gruppi, "commit": commit_corrente(), "data": datetime.now().isoformat(timespec="seconds"),
@@ -209,6 +242,8 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
         per_query[nome] = evaluate(pred=pred, labels=y, groups_count=te.group_count, k=K_NDCG, aggregated=False)
     if args.variante in ("rtr", "rtrwrulecard"):
         metriche["quota_documenti_test"] = quota_distanza(ranker, X, q, params["n_neighbors"])
+        if params["knn_pesato"]:
+            metriche["quota_distanza_incide_con_pesi"] = quota_distanza_pesata(ranker, X, q)
     if args.variante == "rtrwrulecard":
         metriche["gam"] = statistiche_gam(ranker, params["rulecard_max_n_iter"])
 
@@ -231,7 +266,9 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
 
 def main():
     args = leggi_argomenti()
-    cls, params = parametri_variante(args.variante, args.n_jobs_leaf)
+    if args.variante not in ("rtr", "rtrwrulecard") and (args.k != 5 or args.knn_pesato or args.min_doc_foglia):
+        raise SystemExit("--k, --knn-pesato e --min-doc-foglia valgono solo per rtr e rtrwrulecard")
+    cls, params = parametri_variante(args)
     _, _, test, train_valid = load_by_query_dataset(args.dati, DatasetName[args.dataset], hold_out=(0.5, 0.2, 0.3),
                                                     verbose=False)
     print(f"{args.dataset}: {train_valid} | {test}", flush=True)
