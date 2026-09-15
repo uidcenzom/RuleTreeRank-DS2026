@@ -105,15 +105,10 @@ def load_by_query_dataset(base_path: Path,
             if verbose: print("---- WEB10K loaded ----")
         # ------------------------------------------------------------------------------
         case DatasetName.FINDHR:
-            # Merge the processed candidate/job splits into one query-sorted table.
-            paths = [
-                base_path / "FindHR/processed/train.csv",
-                base_path / "FindHR/processed/dev.csv",
-                base_path / "FindHR/processed/test.csv"
-            ]
+            # One row per (job, candidate) pair; the query-level split happens below.
             load_dataset = (
-                pd.concat((pd.read_csv(p) for p in paths))
-                .drop(columns=["id_c", "rank"])
+                pd.read_csv(base_path / "FindHR/processed/fitness_matrix.csv")
+                .drop(columns=["id_c"])
                 .rename(columns={"id_j": "qid"})
                 .sort_values("qid")
             )
@@ -131,14 +126,9 @@ def load_by_query_dataset(base_path: Path,
         # ------------------------------------------------------------------------------
         case DatasetName.FINDHRLIST:
             # Keep the raw score for the later listwise target transformation.
-            paths = [
-                base_path / "FindHR/processed/train.csv",
-                base_path / "FindHR/processed/dev.csv",
-                base_path / "FindHR/processed/test.csv"
-            ]
             load_dataset = (
-                pd.concat((pd.read_csv(p) for p in paths))
-                .drop(columns=["id_c", "rank"])
+                pd.read_csv(base_path / "FindHR/processed/fitness_matrix.csv")
+                .drop(columns=["id_c"])
                 .rename(columns={"id_j": "qid"})
                 .sort_values("qid")
             )
@@ -196,7 +186,7 @@ def load_by_query_dataset(base_path: Path,
                      .groupby("qid")["y"]
                      .transform(lambda s: pd.qcut(s, q=min(30, s.nunique()), labels=False, duplicates="drop"))
             ).fillna(0).astype(int).to_numpy()
-            print(f"---- Update the listwise ranking target  ----")
+            print("---- Update the listwise ranking target  ----")
 
 
     if hold_out is not None:
@@ -214,7 +204,7 @@ def load_by_query_dataset(base_path: Path,
 def load_query_similarity(base_path: Path):
     """Load a saved `query_similarity.json` file as a dict of query groups."""
 
-    qs = pd.read_json(base_path / f"query_similarity.json")
+    qs = pd.read_json(base_path / "query_similarity.json")
     query_groups = {
         c: qs[c].dropna().tolist() for c in qs.columns
     }

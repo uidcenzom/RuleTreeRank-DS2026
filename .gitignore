@@ -12,6 +12,9 @@ venv/
 .idea/
 .vscode/
 
+# macOS
+.DS_Store
+
 # Datasets (LETOR/MQ2007 etc.: large files, downloaded separately)
 datasets/
 

@@ -34,9 +34,9 @@ def listnet_model_selection(
         best_for_group = []
 
         for q_id in tqdm(q_ids, desc=f"ListNet model selection qxm={qxm}"):
-            tr_path = cache_path / f"sub_train.txt"
-            vl_path = cache_path / f"sub_valid.txt"
-            ts_path = cache_path / f"sub_test.txt"
+            tr_path = cache_path / "sub_train.txt"
+            vl_path = cache_path / "sub_valid.txt"
+            ts_path = cache_path / "sub_test.txt"
 
             try:
                 train[[q_id]].to_ltr(tr_path)

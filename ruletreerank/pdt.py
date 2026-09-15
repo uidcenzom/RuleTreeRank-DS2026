@@ -1,14 +1,13 @@
 import math
 import time
 from datetime import datetime
-from pathlib import Path
-from typing import Union, Literal, List, Tuple, Dict, Optional
+from typing import Union, List, Dict, Optional
 
 import numpy as np
 from numpy import ndarray
 
-from ltr_utility import ModelParam, TreeModel
-from sklearn.metrics import euclidean_distances, pairwise_distances
+from ltr_utility import ModelParam
+from sklearn.metrics import euclidean_distances
 
 
 class PairwiseDistanceTree:
@@ -147,13 +146,7 @@ class PairwiseDistanceTree:
         subset_idx_new_b = np.zeros(len(mask), dtype=bool)
         subset_idx_new_b[indices_target_b] = True
 
-        # ---------- Compute x pairs --------------
-        start_x_pair = time.time()
-
         x_pairs = self._generate_pairwise_x_dataset(X, subset_idx_new_a, subset_idx_new_b)
-
-        end_x_pair = time.time()
-        # ---------- Compute x pairs --------------
 
         # ---------- Compute pairwise distances for targets --------------
         if distances is None:

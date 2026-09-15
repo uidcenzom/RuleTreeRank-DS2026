@@ -144,7 +144,7 @@ def save_dict_to_json(data: Dict[str, Any], file_path: Path) -> None:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
     except (TypeError, OSError) as e:
-        raise ValueError("Failed to save dictionary to JSON.")
+        raise ValueError("Failed to save dictionary to JSON.") from e
 
 
 def to_jsonable(obj):

@@ -11,8 +11,11 @@ LtRTuple = NamedTuple('LtRTuple', [('x', np.ndarray), ('y', np.ndarray), ('q', n
 
 class LtrDataset:
     """
-        A dataset wrapper for Learning-to-Rank (LTR) tasks. This class provides an
-        efficient way to store, manipulate, and split datasets grouped by query IDs.
+    A dataset wrapper for Learning-to-Rank (LTR) tasks.
+
+    The dataset stores feature rows, relevance labels, and query IDs in aligned
+    arrays. Query IDs are expected to be sorted so that all documents for the same
+    query are contiguous.
     """
 
     def __init__(self,
@@ -67,16 +70,24 @@ class LtrDataset:
              q: Union[Series, ndarray],
              c_name: Union[List, ndarray]) -> 'LtrDataset':
         """
+        Replace the internal arrays and refresh query metadata.
+
         Parameters
         ----------
-        x : np.ndarray
+        x : Union[pd.DataFrame, np.ndarray]
             Feature matrix where each row represents a document.
-        y : np.ndarray
+        y : Union[pd.Series, np.ndarray]
             Relevance labels aligned with the rows in `x`.
-        q : np.ndarray
+        q : Union[pd.Series, np.ndarray]
             Query IDs aligned with `x` and `y`. This identifies which query
-            each document belongs to. The input data should ideally be sorted
-            by query ID.
+            each document belongs to. Values must already be sorted by query ID.
+        c_name : Union[List, np.ndarray]
+            Feature column names aligned with the columns in `x`.
+
+        Returns
+        -------
+        LtrDataset
+            The current dataset instance after updating its internal state.
         """
         self._x = np.empty((0, 0)) if x is None else np.asarray(x)
         self._y = np.empty(0) if y is None else np.asarray(y)
@@ -99,7 +110,8 @@ class LtrDataset:
 
     def select_first_query(self, k: int, inplace: bool = False) -> "LtrDataset":
         """
-        Select the fist queries in the dataset
+        Select the first `k` queries in dataset order.
+
         Parameters
         ----------
         k : int
@@ -108,6 +120,11 @@ class LtrDataset:
             If True, the filtering is applied in-place and the current instance is modified.
             If False, a new LtrDataset instance is returned with the filtered data, leaving the original
             instance unchanged.
+
+        Returns
+        -------
+        LtrDataset
+            The filtered dataset containing only documents from the selected queries.
         """
         assert isinstance(k, int) and k >= 0, "k must be a positive int"
 
@@ -214,6 +231,11 @@ class LtrDataset:
             Column positions or names to remove.
         inplace : bool
             If True, update the current dataset; otherwise return a filtered copy.
+
+        Returns
+        -------
+        LtrDataset
+            The dataset after removing the selected feature columns.
         """
         assert isinstance(columns, (int, Iterable)), "columns must be int or Iterable"
 
@@ -237,6 +259,11 @@ class LtrDataset:
             Row index or indices to remove.
         inplace : bool
             If True, update the current dataset; otherwise return a filtered copy.
+
+        Returns
+        -------
+        LtrDataset
+            The dataset after removing the selected document rows.
         """
         assert isinstance(index, (int, Iterable)), "items must be int or Iterable"
 
@@ -252,17 +279,22 @@ class LtrDataset:
 
     def delete_query(self, qid: Union[int, Iterable[int]], inplace: bool = False) -> "LtrDataset":
         """
-        Deletes all documents associated with a specific query ID from the dataset.
+        Delete all documents associated with one or more query IDs.
 
         Parameters
         ----------
-        qid : Union[int,List[int]]
-            The query ID to be removed from the dataset.
+        qid : Union[int, Iterable[int]]
+            Query ID or query IDs to remove from the dataset.
 
         inplace: bool
             If True, the filtering is applied in-place and the current instance is modified.
             If False, a new LtrDataset instance is returned with the filtered data, leaving the original
             instance unchanged.
+
+        Returns
+        -------
+        LtrDataset
+            The dataset after removing the selected queries.
         """
         assert isinstance(qid, (int, Iterable)), "qid must be int, str or Iterable"
 
@@ -285,6 +317,11 @@ class LtrDataset:
             Feature names or indices to retain.
         inplace : bool
             If True, update the current dataset; otherwise return a filtered copy.
+
+        Returns
+        -------
+        LtrDataset
+            The dataset containing only the requested feature columns.
         """
         assert isinstance(columns, (int, Iterable)), "columns must be int, str or Iterable"
 
@@ -294,26 +331,34 @@ class LtrDataset:
         return self.delete_columns(columns_drop, inplace=inplace)
 
     def _check_sorted(self):
-        """Return True when query IDs are sorted in non-decreasing order."""
+        """
+        Check whether query IDs are sorted in non-decreasing order.
+
+        Returns
+        -------
+        bool
+            True if every query ID is greater than or equal to the previous one.
+        """
         return np.all(self._q[1:] >= self._q[:-1])
 
     def _sort_by_query(self, inplace: bool = False) -> 'LtrDataset':
         """
-        Sorts the dataset in-place based on query IDs (self._q).
+        Sort the dataset by query ID.
 
         This ensures that all documents belonging to the same query are contiguous, which is strictly required
         for the O(1) slicing logic used in grouping, iterating, and splitting the dataset.
 
-        Parameters:
-        -------
+        Parameters
+        ----------
         inplace : bool
             If True, the sorting is applied in-place and the current instance is modified.
             If False, a new LtrDataset instance is returned with the sorted data, leaving the original
             instance unchanged.
+
         Returns
         -------
         LtrDataset
-            Returns self to allow for method chaining.
+            The sorted dataset.
         """
         dt = self.sort_by_query(x=self._x, y=self._y, q=self._q, columns_name=self._columns_name)
         return self._set(x=dt.x, y=dt.y, q=dt.q, c_name=self._columns_name) if inplace else dt
@@ -321,7 +366,7 @@ class LtrDataset:
     def iterate_queries(self) -> Generator[Tuple[int, ndarray, ndarray], None, None]:
 
         """
-        Generator that yields the data associated with each individual query.
+        Yield the data associated with each individual query.
 
         Each iteration returns:
         - an integer query identifier (`qid`)
@@ -357,6 +402,11 @@ class LtrDataset:
             Number of positions to mark as True.
         random_state : int, optional
             Seed used for reproducible sampling.
+
+        Returns
+        -------
+        np.ndarray
+            Boolean mask with exactly `trues` True entries.
         """
         rng = np.random.default_rng(random_state)
         mask = np.zeros(size, dtype=bool)
@@ -366,17 +416,21 @@ class LtrDataset:
     def set_max_item_per_query(self, max_items: int, random_state: Optional[int],
                                inplace: bool = False) -> 'LtrDataset':
         """
-        Filter a dataset by randomly maintaining a max_items of items per query.
+        Randomly cap the number of documents retained for each query.
 
         Parameters
         ----------
         max_items : int
-            Max number of item per query
-        random_state : int
-            Random state for reproducibility
+            Maximum number of documents to keep for each query.
+        random_state : int, optional
+            Seed used for reproducible sampling.
         inplace: bool
-            If apply the transformation in place or not
-        :return:
+            If True, update the current dataset; otherwise return a filtered copy.
+
+        Returns
+        -------
+        LtrDataset
+            The dataset with at most `max_items` documents per query.
         """
         assert max_items > 0, "max_items must be greater than 0"
 
@@ -396,6 +450,7 @@ class LtrDataset:
     def hold_out(self, train_size: float, valid_size: float, random_seed: Optional[int] = None,
                  shuffle: bool = True) -> Tuple['LtrDataset', 'LtrDataset', 'LtrDataset']:
         """
+        Split the dataset by query IDs into train, validation, and test sets.
 
         Parameters
         ----------
@@ -411,7 +466,7 @@ class LtrDataset:
         Returns
         -------
         Tuple[LtrDataset, LtrDataset, LtrDataset]
-            A tuple containing three `LtrDataset` instances for the train, validation, and test
+            A tuple containing three `LtrDataset` instances for the train, validation, and test sets.
         """
 
         tr_q, vl_q = train_test_split(self.unique_q, train_size=train_size,
@@ -599,23 +654,28 @@ class LtrDataset:
 
     def __len__(self) -> int:
         """
-            Returns the total number of documents (rows) in the dataset.
+        Return the total number of documents in the dataset.
+
+        Returns
+        -------
+        int
+            Number of rows in the feature matrix.
         """
         return len(self._x)
 
     def __getitem__(self, item: Union[Iterable[int], np.ndarray, slice, int]) -> 'LtrDataset':
         """
-            Retrieves a subset of the dataset based on query IDs.
+        Retrieve a subset of the dataset based on query IDs.
 
-            Parameters
-            ----------
-            item : Union[int, List[int], np.ndarray]
-                A single query ID or an iterable of query IDs to filter by.
+        Parameters
+        ----------
+        item : Union[int, List[int], np.ndarray, slice]
+            A single query ID, a collection of query IDs, or a slice over `unique_q`.
 
-            Returns
-            -------
-            LtrDataset
-                A new LtrDataset instance containing only the documents that belong to the specified query IDs.
+        Returns
+        -------
+        LtrDataset
+            A new dataset containing only documents that belong to the selected query IDs.
         """
         if isinstance(item, int):
             mask = self._q == item
@@ -633,14 +693,30 @@ class LtrDataset:
 
     def __str__(self) -> str:
         """
-        Returns a string representation of the dataset showing the total number
-        of samples and unique queries.
+        Return a compact string representation of the dataset.
+
+        Returns
+        -------
+        str
+            Summary with total samples and number of query groups.
         """
         return f"LtrDataset(samples={len(self)}, queries={len(self.group_count)})"
 
     @classmethod
     def from_tuple(cls, t: LtRTuple) -> 'LtrDataset':
-        """Create an `LtrDataset` from an `(x, y, q)` named tuple."""
+        """
+        Create an `LtrDataset` from an `(x, y, q)` named tuple.
+
+        Parameters
+        ----------
+        t : LtRTuple
+            Named tuple containing feature matrix, labels, and query IDs.
+
+        Returns
+        -------
+        LtrDataset
+            Dataset initialized from the tuple arrays.
+        """
         return cls(t.x, t.y, t.q)
 
     @classmethod
@@ -703,16 +779,22 @@ class LtrDataset:
     @classmethod
     def concat_by_query(cls, *dt: 'LtrDataset') -> 'LtrDataset':
         """
+        Concatenate datasets by interleaving complete query groups.
+
         Example:
             d1.q = [1,1,2] ; d2.q = [1,3,3]
             -> unique_q = [1,2,3]
             -> q = [1,1, (d1) , 1 (d2),  2 (d1),  3,3 (d2)]
 
+        Parameters
+        ----------
+        *dt : LtrDataset
+            Variable length argument list of datasets to concatenate.
+
         Returns
         -------
-        LtrDataset:
-                A new LtrDataset containing the combined data from all provided instances.
-.
+        LtrDataset
+            A new dataset containing the combined query groups from all provided instances.
         """
         if not dt or not (nonempty := [d for d in dt if len(d) > 0]):
             return LtrDataset(np.array([]), np.array([]), np.array([]))
@@ -761,12 +843,12 @@ class LtrDataset:
     @property
     def dataset(self) -> DataFrame:
         """
-            Returns a Pandas DataFrame representation of the dataset.
+        Return a Pandas DataFrame representation of the dataset.
 
-            Returns
-            -------
-            pd.DataFrame
-                The dataset containing query IDs ('qid'), labels ('y'), and features.
+        Returns
+        -------
+        pd.DataFrame
+            The dataset containing query IDs ('qid'), labels ('y'), and features.
         """
         if self._dataset_cache is None:
             dt = pd.DataFrame(self._x)
@@ -777,43 +859,97 @@ class LtrDataset:
 
     @property
     def x(self) -> ndarray:
-        """Feature matrix with one row per document."""
+        """
+        Return the feature matrix.
+
+        Returns
+        -------
+        np.ndarray
+            Matrix with one row per document and one column per feature.
+        """
         return self._x
 
     @property
     def y(self) -> ndarray:
-        """Relevance labels aligned with `x`."""
+        """
+        Return the relevance labels.
+
+        Returns
+        -------
+        np.ndarray
+            Label vector aligned with the rows of `x`.
+        """
         return self._y
 
     @property
     def q(self) -> ndarray:
-        """Query IDs aligned with `x` and `y`."""
+        """
+        Return the query IDs.
+
+        Returns
+        -------
+        np.ndarray
+            Query-ID vector aligned with `x` and `y`.
+        """
         return self._q
 
     @property
     def unique_q(self) -> ndarray:
-        """Unique query IDs in dataset order."""
+        """
+        Return unique query IDs in dataset order.
+
+        Returns
+        -------
+        np.ndarray
+            Query IDs represented by the dataset.
+        """
         return self._unique_q
 
     @property
     def group_count(self) -> ndarray:
-        """Number of documents for each query in `unique_q`."""
+        """
+        Return the number of documents for each query.
+
+        Returns
+        -------
+        np.ndarray
+            Group sizes aligned with `unique_q`.
+        """
         return self._group_count
 
     def feature_names(self) -> ndarray:
-        """Return the feature names associated with the columns of `x`."""
+        """
+        Return the feature names associated with the columns of `x`.
+
+        Returns
+        -------
+        np.ndarray
+            Feature names aligned with the feature matrix columns.
+        """
         return self._columns_name
 
     @staticmethod
     def q2count(q: ndarray) -> ndarray:
-        """Convert a sorted query-ID vector into per-query document counts."""
+        """
+        Convert a sorted query-ID vector into per-query document counts.
+
+        Parameters
+        ----------
+        q : np.ndarray
+            Sorted query-ID vector.
+
+        Returns
+        -------
+        np.ndarray
+            Number of documents associated with each contiguous query group.
+        """
         return np.diff(np.concatenate(([0], np.where(q[:-1] != q[1:])[0] + 1, [len(q)])))
 
     @staticmethod
     def sort_by_query(x: ndarray, y: ndarray, q: ndarray,
                       columns_name: Optional[Union[List, ndarray]] = None) -> 'LtrDataset':
         """
-        Sorts the dataset by query IDs while maintaining the original order of documents within each query group.
+        Sort arrays by query ID while preserving document order within each query.
 
         Parameters
         ----------
@@ -830,6 +966,11 @@ class LtrDataset:
             List of column names for the features,  it will  be used to set the feature names.
             If `columns_name` is not provided, feature names will default
             to integer indices.
+
+        Returns
+        -------
+        LtrDataset
+            New dataset sorted by query ID.
         """
         if len(x) == 0:
             return LtrDataset()

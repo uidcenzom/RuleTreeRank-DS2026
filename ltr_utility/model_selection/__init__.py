@@ -8,7 +8,7 @@ from .query_kfold import QueryKFold
 from .query_model_selection import (train_query_based_ltr, extract_query_configs,
                                     query_model_selection, test_query_based_ltr)
 
-from .retrain import show_distr_conf, custom_train
+from .retrain import show_distr_conf, custom_train, retrain_evaluate
 
 __all__ = [
     "evaluate",
@@ -28,5 +28,6 @@ __all__ = [
     "test_query_based_ltr",
 
     "show_distr_conf",
-    "custom_train"
+    "custom_train",
+    "retrain_evaluate"
 ]

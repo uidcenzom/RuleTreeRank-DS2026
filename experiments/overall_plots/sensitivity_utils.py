@@ -24,9 +24,8 @@ def load_result_file(dataset_name: str, dataset_dir: str, model_name: str, filen
         `"MQ2007"` or `"FINDHR"`.
     dataset_dir:
         Directory name under `../query_based` containing the `results/` folder.
-        This function assumes it is run from `experiments/Sensitivity` or from
-        another working directory where `../query_based/<dataset_dir>/results`
-        resolves correctly.
+        Paths are relative to `experiments/overall_plots`, which is where the
+        notebook using this module lives.
     model_name:
         Human-readable model label to store in the returned dataframe, e.g.
         `"Mix-RuleTreeRank"`.
