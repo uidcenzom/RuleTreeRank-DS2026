@@ -74,7 +74,7 @@ for phi in PHIS:
     })
 
 df = pd.DataFrame(rows)
-print("\n===== BASELINE RTR (MixedRTR) — NDCG@10 =====")
+print("\n===== Baseline RTR (MixedRTR), NDCG@10 =====")
 print(df.to_string(index=False))
 
 out = Path(__file__).resolve().parent / "rtr_sintetico.csv"
