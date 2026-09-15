@@ -1,5 +1,5 @@
 """
-T4 - Baseline RTR (MixedRTR) su dataset sintetico self-contained.
+Baseline di RTR (MixedRTR) su un dataset sintetico generato nello script.
 Riproduce il meccanismo degli esperimenti: QueryRanker(q_per_model=|phi|) + WrapperMixRTR.
 Metrica: NDCG@10 (media sulle query del test) via ltr_utility evaluate. Salva anche i tempi di training.
 """
@@ -77,6 +77,6 @@ df = pd.DataFrame(rows)
 print("\n===== BASELINE RTR (MixedRTR) — NDCG@10 =====")
 print(df.to_string(index=False))
 
-out = Path(__file__).resolve().parent / "t4_baseline_rtr.csv"
+out = Path(__file__).resolve().parent / "rtr_sintetico.csv"
 df.to_csv(out, index=False)
 print(f"\nSaved: {out}")

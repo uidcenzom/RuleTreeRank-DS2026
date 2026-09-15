@@ -1,5 +1,5 @@
 """
-T6 + T7 - RTRwRuleCard vs RTR (PDT) sullo stesso dataset sintetico (uguale a T4).
+Confronto fra RTR con PDT e RTRwRuleCard sullo stesso dataset sintetico di rtr_sintetico.py.
 Confronto NDCG@10 + tempi di training a |phi| in {1,2,4,6}, e campione qualitativo di regole.
 """
 import sys
@@ -67,17 +67,17 @@ df = pd.DataFrame(rtr_rows + rc_rows)
 piv = df.pivot(index="phi", columns="model", values=f"ndcg@{K}")
 piv_t = df.pivot(index="phi", columns="model", values="fit_s")
 
-print("\n================ T7 — CONFRONTO NDCG@10 ================")
+print("\n================ Confronto NDCG@10 ================")
 print(piv.to_string())
-print("\n================ T7 — Tempi di training (s) ================")
+print("\n================ Tempi di addestramento (s) ================")
 print(piv_t.to_string())
 
-out = Path(__file__).resolve().parent / "t7_compare.csv"
+out = Path(__file__).resolve().parent / "confronto_rtr_rulecard_sintetico.csv"
 df.to_csv(out, index=False)
 print(f"\nSaved: {out}")
 
 # esempio qualitativo, regole additive RuleCard di una foglia
-print("\n================ T7 — Leggibilità: esempio scheda RuleCard (una foglia) ================")
+print("\n================ Esempio di regole della GAM (una foglia) ================")
 cols = [f"f{i}" for i in range(FEATURES)]
 shown = 0
 # rc_last is a QueryRanker; drill into one fitted WrapperMixRTRRuleCard -> one leaf distance model
