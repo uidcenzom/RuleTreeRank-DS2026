@@ -77,11 +77,10 @@ def parametri_variante(variante, n_jobs_leaf):
         case "rtr":
             return WrapperMixRTR, rtr
         case "rtrwrulecard":
-            # lr = 1 come indicato da Landi il 15 settembre. Con 20 round la GAM si fermava
-            # al limite in circa 3 gruppi su 4: il massimo è alto perché a fermarla sia la patience.
-            # La patience 3 è provvisoria.
+            # lr = 1 come indicato da Landi il 15 settembre. Patience 15 e massimo 100 round sono
+            # i valori degli esperimenti del paper di RuleCard (che prova anche 500 round).
             return WrapperMixRTRRuleCard, {**rtr, "rulecard_lr": 1.0, "rulecard_max_n_iter": 100,
-                                           "rulecard_patience": 3}
+                                           "rulecard_patience": 15}
         case "knn":
             # k provvisorio, lo stesso del secondo stadio di RTR
             return WrapperKNN, dict(n_neighbors=5)
