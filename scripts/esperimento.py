@@ -38,7 +38,10 @@ sys.path.insert(0, str(REPO))
 
 import numpy as np
 import pandas as pd
-from joblib.externals import cloudpickle
+try:  # cloudpickle a sé stante, oppure quello incluso in joblib: dipende da come è fatto l'ambiente
+    import cloudpickle
+except ImportError:
+    from joblib.externals import cloudpickle
 
 from ltr_utility import ModelParam
 from ltr_utility.dataset import load_by_query_dataset, load_query_similarity, DatasetName
