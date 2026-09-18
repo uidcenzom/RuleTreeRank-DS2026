@@ -13,8 +13,8 @@ pagata, da cui si legge senza far girare niente:
    configurazione buona per tutti: è la premessa dell'intero impianto a gruppi di
    query, e nessuno l'aveva ancora misurata.
 
-Si lavora sulle 144 configurazioni senza lambda_scores, quelle che possiamo
-davvero usare.
+Si lavora sulle configurazioni che usano solo i parametri della nostra griglia,
+cioè quelle che possiamo eseguire.
 
 Uso:
   python peso_degli_iperparametri.py [cartella dei file di Iommi]
@@ -32,13 +32,20 @@ MODELLI = {
 }
 IPERPARAMETRI = ["feature_diff", "pdt_depth", "n_neighbors", "sdt_depth", "dist_objective"]
 
+# i parametri che la nostra implementazione conosce: tutti gli altri devono
+# restare al valore neutro, altrimenti la configurazione non è riproducibile
+NOSTRI = set(IPERPARAMETRI) | {
+    "feature_concat", "feature_sq_diff", "subsample", "sdt_max_leaf_nodes",
+    "min_samples_split", "verbose", "n_jobs_leaf",
+}
+
 
 def tabella_lunga(percorso: Path, modello: str) -> pd.DataFrame:
     """Una riga per (gruppo, configurazione), con gli iperparametri e il punteggio."""
     righe = []
     for numero, gruppo in enumerate(json.loads(percorso.read_text(encoding="utf-8"))):
         for conf, punteggio in zip(gruppo["configs"], gruppo["results"]):
-            if conf.get("lambda_scores", False):
+            if any(v for k, v in conf.items() if k not in NOSTRI):
                 continue
             righe.append({"modello": modello, "phi": int(gruppo["qxm"]), "gruppo": numero,
                           **{k: conf.get(k) for k in IPERPARAMETRI}, "ndcg": float(punteggio)})
@@ -117,7 +124,7 @@ def main():
         return
     t = pd.concat(tabelle, ignore_index=True)
     print(f"{len(t)} righe: {t['gruppo'].nunique()} gruppi per |phi|, "
-          f"{len(t) // t.groupby(['modello', 'phi', 'gruppo']).ngroups} configurazioni senza lambda\n")
+          f"{len(t) // t.groupby(['modello', 'phi', 'gruppo']).ngroups} configurazioni per gruppo\n")
 
     mix = t[t["modello"] == "Mix-RuleTreeRank"]
     print("=== effetto medio di ogni valore, Mix-RuleTreeRank (punti di NDCG sulla media del gruppo) ===")

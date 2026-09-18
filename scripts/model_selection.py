@@ -1,13 +1,11 @@
 """
-Model selection per gruppo di query, sulla griglia del gruppo senza lambda_scores.
+Model selection per gruppo di query sulla griglia del gruppo.
 
 Per ogni valore di |phi| e per ogni gruppo di query allena tutte le configurazioni
 della griglia con una convalida a fold sui documenti di ciascuna query e tiene
-quella con l'NDCG@10 medio più alto. È la stessa procedura usata da Iommi, con
-due differenze dichiarate:
-
-- `lambda_scores` non c'è, perché la funzione che lo calcola non è nel codice;
-- il modello di distanza può essere la GAM di RuleCard e non solo il PDT.
+quella con l'NDCG@10 medio più alto. È la stessa procedura usata dal gruppo, con
+una differenza: il modello di distanza può essere la GAM di RuleCard e non solo
+il PDT.
 
 I gruppi di query sono quelli di Iommi (`dati_dal_gruppo/`), così i risultati
 stanno accanto ai suoi. La griglia è quella mandata dal gruppo il 27 agosto:
@@ -49,7 +47,7 @@ from experiments.varianti import WrapperMixRTRVariante
 K_NDCG = 10
 GRUPPI_IOMMI = REPO / "dati_dal_gruppo" / "query_similarity_iommi_2026-09-18.json"
 
-# griglia del gruppo (27 agosto) senza lambda_scores
+# griglia del gruppo, 27 agosto
 GRIGLIA = {
     "feature_diff": [True, False],
     "pdt_depth": [2, 4, 6],

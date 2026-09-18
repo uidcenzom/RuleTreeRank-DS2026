@@ -16,8 +16,8 @@ leggere, così si possono rifare le tabelle su risultati diversi.
   - `peso_degli_iperparametri.py` e i tre CSV: quanto pesa ogni iperparametro e
     quanto vale scegliere la configurazione gruppo per gruppo, ricavati dai file
     di model selection del gruppo senza addestrare nulla
-  - `configurazioni_senza_lambda.py`: la configurazione migliore per ogni gruppo
-    fra quelle che non usano `lambda_scores`
+  - `configurazioni_per_gruppo.py`: la configurazione migliore per ogni gruppo di
+    query, ricavata dai file di model selection
   - `perche_findhr_guadagna_di_piu.py`: perché il vantaggio della GAM è più
     grande sul dataset dove la distanza incide su meno documenti
 
