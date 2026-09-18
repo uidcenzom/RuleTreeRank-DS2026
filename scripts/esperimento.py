@@ -69,6 +69,12 @@ def leggi_argomenti():
                    help="media dei residui dei vicini pesata per 1/distanza invece che uniforme")
     p.add_argument("--min-doc-foglia", type=int, default=None,
                    help="numero minimo di documenti di training per foglia nel primo stadio")
+    p.add_argument("--sdt-depth", type=int, default=5, help="profondità dell'albero del primo stadio")
+    p.add_argument("--pdt-depth", type=int, default=4, help="profondità dell'albero della distanza")
+    p.add_argument("--dist-objective", default="dist", choices=["dist", "y", "residuals"],
+                   help="bersaglio su cui si allena il modello di distanza")
+    p.add_argument("--senza-feature-diff", action="store_true",
+                   help="rappresenta la coppia senza |x_i - x_j|")
     p.add_argument("--senza-modello", action="store_true", help="non salvare il modello allenato")
     return p.parse_args()
 
@@ -82,15 +88,24 @@ def nome_variante(args):
         nome += "_pesato"
     if args.min_doc_foglia:
         nome += f"_minfoglia{args.min_doc_foglia}"
+    if args.sdt_depth != 5:
+        nome += f"_sdt{args.sdt_depth}"
+    if args.pdt_depth != 4:
+        nome += f"_pdt{args.pdt_depth}"
+    if args.dist_objective != "dist":
+        nome += f"_{args.dist_objective}"
+    if args.senza_feature_diff:
+        nome += "_senzadiff"
     return nome
 
 
 def parametri_variante(args):
     """Iperparametri di ogni variante, tutti in un punto."""
-    # Fissati dal gruppo nella griglia del 27 agosto. Profondità, k, uso della differenza
-    # e target della distanza sono quelli raccomandati nel paper: restano provvisori finché
-    # non arriva la model selection.
-    rtr = dict(sdt_depth=5, pdt_depth=4, n_neighbors=args.k, feature_diff=True, dist_objective="dist",
+    # Fissati dal gruppo nella griglia del 27 agosto. Profondità, k, uso della differenza e
+    # bersaglio della distanza valgono quanto raccomanda il paper, ma si cambiano da riga di
+    # comando perché sono proprio quelli che la model selection fa variare sulla griglia.
+    rtr = dict(sdt_depth=args.sdt_depth, pdt_depth=args.pdt_depth, n_neighbors=args.k,
+               feature_diff=not args.senza_feature_diff, dist_objective=args.dist_objective,
                feature_concat=True, feature_sq_diff=False, subsample=1.0, sdt_max_leaf_nodes=None,
                min_samples_split=2, verbose=False, n_jobs_leaf=args.n_jobs_leaf,
                knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia, random_state=args.seed)
@@ -269,8 +284,10 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
 
 def main():
     args = leggi_argomenti()
-    if args.variante not in ("rtr", "rtrwrulecard") and (args.k != 5 or args.knn_pesato or args.min_doc_foglia):
-        raise SystemExit("--k, --knn-pesato e --min-doc-foglia valgono solo per rtr e rtrwrulecard")
+    opzioni_del_modello = (args.k != 5 or args.knn_pesato or args.min_doc_foglia or args.sdt_depth != 5
+                           or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff)
+    if args.variante not in ("rtr", "rtrwrulecard") and opzioni_del_modello:
+        raise SystemExit("le opzioni del modello valgono solo per rtr e rtrwrulecard")
     cls, params = parametri_variante(args)
     _, _, test, train_valid = load_by_query_dataset(args.dati, DatasetName[args.dataset], hold_out=(0.5, 0.2, 0.3),
                                                     verbose=False)
