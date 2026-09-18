@@ -1,0 +1,91 @@
+inizio 2026-09-15 16:41:02
+=== FINDHR rtr 16:41:02
+FINDHR: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+Training:   1%|          | 1/100 [00:05<08:54,  5.40s/it]
+Training:   2%|▏         | 2/100 [00:05<03:48,  2.33s/it]
+Training:   3%|▎         | 3/100 [00:05<02:10,  1.35s/it]
+|phi|=1: 100 query, NDCG@10 0.9535 (std 0.043), fit 24.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9547 (std 0.042), fit 15.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9546 (std 0.045), fit 13.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9570 (std 0.042), fit 12.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi6\seed0
+Training:  20%|██        | 2/10 [00:02<00:09,  1.13s/it]
+Training:  30%|███       | 3/10 [00:03<00:08,  1.16s/it]
+Training:  40%|████      | 4/10 [00:04<00:07,  1.27s/it]
+Training:  50%|█████     | 5/10 [00:05<00:05,  1.20s/it]
+Training:  60%|██████    | 6/10 [00:07<00:04,  1.19s/it]
+Training:  70%|███████   | 7/10 [00:08<00:03,  1.21s/it]
+Training:  80%|████████  | 8/10 [00:09<00:02,  1.17s/it]
+Training:  90%|█████████ | 9/10 [00:10<00:01,  1.16s/it]
+Training: 100%|██████████| 10/10 [00:11<00:00,  1.12s/it]
+Training: 100%|██████████| 10/10 [00:11<00:00,  1.16s/it]
+|phi|=10: 100 query, NDCG@10 0.9514 (std 0.046), fit 11.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi10\seed0
+=== FINDHR knn 16:42:57
+FINDHR: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+|phi|=1: 100 query, NDCG@10 0.9339 (std 0.058), fit 0.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\knn\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9379 (std 0.055), fit 0.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\knn\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9493 (std 0.047), fit 0.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\knn\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9493 (std 0.047), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\knn\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9576 (std 0.043), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\knn\phi10\seed0
+=== FINDHR lambdamart 16:43:03
+FINDHR: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+Training:   1%|          | 1/100 [00:02<03:53,  2.36s/it]
+|phi|=1: 100 query, NDCG@10 0.9441 (std 0.059), fit 5.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\lambdamart\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9649 (std 0.042), fit 1.9s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\lambdamart\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9737 (std 0.035), fit 1.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\lambdamart\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9766 (std 0.036), fit 1.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\lambdamart\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9763 (std 0.034), fit 0.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\lambdamart\phi10\seed0
+=== FINDHR casuale 16:43:20
+FINDHR: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+|phi|=1: 100 query, NDCG@10 0.6472 (std 0.132), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\casuale\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.6535 (std 0.119), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\casuale\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.6565 (std 0.125), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\casuale\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.6449 (std 0.124), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\casuale\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.6503 (std 0.140), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\casuale\phi10\seed0
+=== FINDHRLIST rtr 16:43:24
+---- Update the listwise ranking target  ----
+FINDHRLIST: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+Training:   1%|          | 1/100 [00:05<08:30,  5.16s/it]
+Training:   2%|▏         | 2/100 [00:05<03:45,  2.30s/it]
+Training:   3%|▎         | 3/100 [00:05<02:12,  1.36s/it]
+|phi|=1: 100 query, NDCG@10 0.9770 (std 0.017), fit 30.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9749 (std 0.020), fit 19.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9747 (std 0.017), fit 15.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9728 (std 0.021), fit 14.5s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi6\seed0
+Training:  10%|█         | 1/10 [00:01<00:10,  1.13s/it]
+Training:  20%|██        | 2/10 [00:02<00:08,  1.12s/it]
+Training:  30%|███       | 3/10 [00:03<00:07,  1.10s/it]
+Training:  40%|████      | 4/10 [00:04<00:06,  1.11s/it]
+Training:  50%|█████     | 5/10 [00:05<00:05,  1.05s/it]
+Training:  60%|██████    | 6/10 [00:06<00:04,  1.17s/it]
+Training:  70%|███████   | 7/10 [00:08<00:03,  1.22s/it]
+Training:  80%|████████  | 8/10 [00:09<00:02,  1.29s/it]
+Training:  90%|█████████ | 9/10 [00:11<00:01,  1.44s/it]
+Training: 100%|██████████| 10/10 [00:12<00:00,  1.40s/it]
+Training: 100%|██████████| 10/10 [00:12<00:00,  1.26s/it]
+|phi|=10: 100 query, NDCG@10 0.9741 (std 0.018), fit 12.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi10\seed0
+=== FINDHRLIST knn 16:45:36
+---- Update the listwise ranking target  ----
+FINDHRLIST: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+|phi|=1: 100 query, NDCG@10 0.9469 (std 0.027), fit 0.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\knn\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9503 (std 0.029), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\knn\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9573 (std 0.036), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\knn\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9651 (std 0.025), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\knn\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9591 (std 0.033), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\knn\phi10\seed0
+=== FINDHRLIST lambdamart 16:45:42
+---- Update the listwise ranking target  ----
+FINDHRLIST: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+Training:   1%|          | 1/100 [00:02<03:49,  2.31s/it]
+|phi|=1: 100 query, NDCG@10 0.9184 (std 0.075), fit 5.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\lambdamart\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9640 (std 0.031), fit 2.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\lambdamart\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9829 (std 0.014), fit 1.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\lambdamart\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9828 (std 0.018), fit 1.5s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\lambdamart\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9851 (std 0.013), fit 1.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\lambdamart\phi10\seed0
+=== FINDHRLIST casuale 16:46:00
+---- Update the listwise ranking target  ----
+FINDHRLIST: LtrDataset(samples=28000, queries=100) | LtrDataset(samples=12000, queries=100)
+|phi|=1: 100 query, NDCG@10 0.4997 (std 0.105), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\casuale\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.5060 (std 0.108), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\casuale\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.5090 (std 0.107), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\casuale\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.5000 (std 0.105), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\casuale\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.5167 (std 0.105), fit 0.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\casuale\phi10\seed0
+fine 2026-09-15 16:46:05

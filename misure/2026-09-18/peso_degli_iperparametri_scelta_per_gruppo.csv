@@ -1,0 +1,17 @@
+modello,phi,scelta_per_gruppo,configurazione_unica,guadagno
+Mix-RuleTreeRank,1,0.9635,0.9477,0.0158
+Mix-RuleTreeRank,2,0.9633,0.9523,0.0109
+Mix-RuleTreeRank,4,0.9622,0.9557,0.0064
+Mix-RuleTreeRank,6,0.9653,0.9613,0.004
+Mix-RuleTreeRank,8,0.9668,0.962,0.0048
+Mix-RuleTreeRank,10,0.9674,0.963,0.0044
+Mix-RuleTreeRank,50,0.9704,0.9696,0.0008
+Mix-RuleTreeRank,100,0.97,0.97,0.0
+RuleTreeRank,1,0.9633,0.947,0.0163
+RuleTreeRank,2,0.9682,0.9566,0.0116
+RuleTreeRank,4,0.9705,0.9644,0.0061
+RuleTreeRank,6,0.9748,0.9713,0.0035
+RuleTreeRank,8,0.9752,0.9731,0.0021
+RuleTreeRank,10,0.9747,0.973,0.0017
+RuleTreeRank,50,0.9815,0.9815,0.0
+RuleTreeRank,100,0.9803,0.9803,0.0

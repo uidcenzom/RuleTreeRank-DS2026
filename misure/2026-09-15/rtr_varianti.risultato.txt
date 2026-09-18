@@ -1,0 +1,4 @@
+Training with one-shot mode (dict params).
+phi=1 | fit 114.5s | NDCG@10 PDT 0.5120 | euclidea 0.5120 | solo r(x) 0.5120
+Training with one-shot mode (dict params).
+phi=10 | fit 134.4s | NDCG@10 PDT 0.5030 | euclidea 0.5078 | solo r(x) 0.4885

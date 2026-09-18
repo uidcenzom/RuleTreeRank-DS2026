@@ -1,0 +1,11 @@
+modello,iperparametro,valore_migliore_da_fissare,perdita_media,perdita_peggior_valore
+Mix-RuleTreeRank,feature_diff,True,0.0013,0.0024
+RuleTreeRank,feature_diff,True,0.0013,0.003
+Mix-RuleTreeRank,pdt_depth,6,0.0021,0.0034
+RuleTreeRank,pdt_depth,6,0.0021,0.0039
+Mix-RuleTreeRank,n_neighbors,5,0.001,0.0046
+RuleTreeRank,n_neighbors,5,0.0007,0.005
+Mix-RuleTreeRank,sdt_depth,6,0.009,0.0267
+RuleTreeRank,sdt_depth,4,0.0067,0.0252
+Mix-RuleTreeRank,dist_objective,dist,0.0009,0.0056
+RuleTreeRank,dist_objective,dist,0.0009,0.0063

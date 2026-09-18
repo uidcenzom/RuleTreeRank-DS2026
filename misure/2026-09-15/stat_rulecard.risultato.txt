@@ -1,0 +1,22 @@
+===== phi=1, prime 30 query | modelli 30 | tempo fit totale 1735.1s =====
+gruppetti (foglia, query): 131
+motivi di ripiego: {None: 54, 'poche_istanze': 71, 'modello_vuoto': 6}
+gruppetti con GAM: 54 | n documenti mediana 13
+round T: media 17.2 mediana 20 min 1 max 20 | T == 20: 75.9%
+   n in [3,5]: gruppetti 15, T medio 11.7, T==20 33%
+   n in [6,10]: gruppetti 9, T medio 18.0, T==20 78%
+   n in [11,20]: gruppetti 15, T medio 19.5, T==20 93%
+   n in [21,1000]: gruppetti 15, T medio 20.0, T==20 100%
+termini per tipo di colonna: {'|a_j-b_j|': '87.0%', 'a_j': '12.0%', 'b_j': '1.0%'}
+asimmetria |d(a,b)-d(b,a)| / media d, gruppetti con n>5: mediana 0.000, 90 perc 0.038
+===== phi=10, prime 30 query | modelli 3 | tempo fit totale 2674.2s =====
+gruppetti (foglia, query): 223
+motivi di ripiego: {None: 63, 'modello_vuoto': 19, 'poche_istanze': 141}
+gruppetti con GAM: 63 | n documenti mediana 8
+round T: media 16.5 mediana 20 min 1 max 20 | T == 20: 71.4%
+   n in [3,5]: gruppetti 17, T medio 7.8, T==20 12%
+   n in [6,10]: gruppetti 22, T medio 19.5, T==20 91%
+   n in [11,20]: gruppetti 23, T medio 19.8, T==20 96%
+   n in [21,1000]: gruppetti 1, T medio 20.0, T==20 100%
+termini per tipo di colonna: {'|a_j-b_j|': '91.4%', 'a_j': '7.8%', 'b_j': '0.8%'}
+asimmetria |d(a,b)-d(b,a)| / media d, gruppetti con n>5: mediana 0.000, 90 perc 0.032

@@ -1,0 +1,15 @@
+iperparametro,valore,effetto,configurazioni
+dist_objective,dist,0.0002,15696
+dist_objective,y,-0.0002,15696
+feature_diff,True,0.0026,15696
+feature_diff,False,-0.0026,15696
+n_neighbors,5,0.0023,10464
+n_neighbors,4,0.0003,10464
+n_neighbors,3,-0.0026,10464
+pdt_depth,6,0.0053,10464
+pdt_depth,4,0.0001,10464
+pdt_depth,2,-0.0054,10464
+sdt_depth,6,0.0183,7848
+sdt_depth,8,0.0147,7848
+sdt_depth,4,0.0052,7848
+sdt_depth,2,-0.0382,7848

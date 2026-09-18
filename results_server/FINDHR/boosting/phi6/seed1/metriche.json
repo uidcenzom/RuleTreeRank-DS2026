@@ -1,0 +1,9 @@
+{
+  "tempo_fit_s": 33.58,
+  "tempo_predict_s": 0.17,
+  "ndcg@10_completo": {
+    "media": 0.9822341866268356,
+    "std": 0.027434643557677107,
+    "mediana": 1.0
+  }
+}

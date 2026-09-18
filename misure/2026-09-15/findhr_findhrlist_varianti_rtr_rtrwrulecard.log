@@ -1,0 +1,56 @@
+inizio 2026-09-15 17:11:00 | commit 48a138a
+=== --dataset FINDHR --variante rtr | 2026-09-15 17:11:00
+|phi|=1: 100 query, NDCG@10 0.9500 (std 0.043), fit 48.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9543 (std 0.042), fit 31.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9545 (std 0.045), fit 30.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9568 (std 0.042), fit 30.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9520 (std 0.046), fit 27.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr\phi10\seed0
+=== --dataset FINDHR --variante rtr --knn-pesato | 2026-09-15 17:14:41
+|phi|=1: 100 query, NDCG@10 0.9442 (std 0.044), fit 52.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_pesato\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9485 (std 0.042), fit 34.5s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_pesato\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9501 (std 0.047), fit 29.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_pesato\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9533 (std 0.042), fit 29.7s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_pesato\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9473 (std 0.048), fit 29.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_pesato\phi10\seed0
+=== --dataset FINDHR --variante rtr --min-doc-foglia 6 | 2026-09-15 17:18:42
+|phi|=1: 100 query, NDCG@10 0.9514 (std 0.049), fit 51.7s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia6\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9522 (std 0.046), fit 37.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia6\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9540 (std 0.046), fit 32.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia6\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9560 (std 0.042), fit 31.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia6\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9520 (std 0.046), fit 27.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia6\phi10\seed0
+=== --dataset FINDHR --variante rtr --min-doc-foglia 10 | 2026-09-15 17:22:34
+|phi|=1: 100 query, NDCG@10 0.9452 (std 0.051), fit 39.9s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia10\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9478 (std 0.047), fit 29.5s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia10\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9528 (std 0.044), fit 28.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia10\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9545 (std 0.043), fit 92.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia10\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9527 (std 0.046), fit 11.9s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHR\rtr_minfoglia10\phi10\seed0
+=== --dataset FINDHRLIST --variante rtr | 2026-09-15 17:26:43
+|phi|=1: 100 query, NDCG@10 0.9771 (std 0.017), fit 33.6s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9749 (std 0.020), fit 20.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9751 (std 0.016), fit 17.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9729 (std 0.021), fit 18.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9741 (std 0.018), fit 16.7s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr\phi10\seed0
+=== --dataset FINDHRLIST --variante rtr --knn-pesato | 2026-09-15 17:29:09
+|phi|=1: 100 query, NDCG@10 0.9746 (std 0.017), fit 46.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_pesato\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9718 (std 0.020), fit 38.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_pesato\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9694 (std 0.022), fit 45.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_pesato\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9669 (std 0.026), fit 36.2s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_pesato\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9651 (std 0.027), fit 32.0s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_pesato\phi10\seed0
+=== --dataset FINDHRLIST --variante rtr --min-doc-foglia 6 | 2026-09-15 17:33:33
+|phi|=1: 100 query, NDCG@10 0.9725 (std 0.022), fit 53.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia6\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9752 (std 0.019), fit 45.4s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia6\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9750 (std 0.016), fit 41.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia6\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9735 (std 0.019), fit 38.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia6\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9741 (std 0.018), fit 31.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia6\phi10\seed0
+=== --dataset FINDHRLIST --variante rtr --min-doc-foglia 10 | 2026-09-15 17:38:12
+|phi|=1: 100 query, NDCG@10 0.9630 (std 0.034), fit 46.7s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia10\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9726 (std 0.021), fit 34.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia10\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9749 (std 0.017), fit 35.7s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia10\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9717 (std 0.021), fit 32.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia10\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9735 (std 0.018), fit 32.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtr_minfoglia10\phi10\seed0
+=== --dataset FINDHRLIST --variante rtrwrulecard | 2026-09-15 17:42:10
+|phi|=1: 100 query, NDCG@10 0.9785 (std 0.015), fit 2778.1s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtrwrulecard\phi1\seed0
+|phi|=2: 100 query, NDCG@10 0.9754 (std 0.019), fit 2226.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtrwrulecard\phi2\seed0
+|phi|=4: 100 query, NDCG@10 0.9763 (std 0.017), fit 2075.8s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtrwrulecard\phi4\seed0
+|phi|=6: 100 query, NDCG@10 0.9751 (std 0.019), fit 2218.5s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtrwrulecard\phi6\seed0
+|phi|=10: 100 query, NDCG@10 0.9767 (std 0.015), fit 2068.3s -> C:\Users\manzo\Desktop\fork\RuleTreeRank-DS2026\results\FINDHRLIST\rtrwrulecard\phi10\seed0
+fine 2026-09-15 20:54:50

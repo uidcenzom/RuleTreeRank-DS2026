@@ -23,3 +23,7 @@ anaconda_projects/
 
 # Modelli allenati salvati dagli esperimenti: pesanti, restano solo in locale
 results/**/modello.pkl
+
+# Predizioni salvate dagli esperimenti: pesanti, restano solo in locale
+results*/**/predizioni.npz
+results*/**/modello.pkl

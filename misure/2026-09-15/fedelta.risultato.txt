@@ -1,0 +1,3 @@
+prime 60 query di MQ2007, phi=1, foglie con piu di 5 documenti di training: 79
+PDT       | Spearman con ED2 sulle coppie: mediana 0.954 | vicini in comune con l'euclidea (top-5, test): media 0.62 | quota valori distinti: mediana 0.12 | fit 6.1s
+RuleCard  | Spearman con ED2 sulle coppie: mediana 0.965 | vicini in comune con l'euclidea (top-5, test): media 0.68 | quota valori distinti: mediana 0.97 | fit 4589.6s
