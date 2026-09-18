@@ -48,7 +48,7 @@ from ltr_utility.dataset import load_by_query_dataset, load_query_similarity, Da
 from ltr_utility.model_selection.evaluation import evaluate
 from ruletreerank import QueryRanker
 from experiments.wrappers import WrapperKNN, WrapperLGBMRanker, RandomRanker
-from experiments.varianti import WrapperMixRTRVariante
+from experiments.varianti import WrapperMixRTRVariante, WrapperRTRVariante
 
 K_NDCG = 10
 
@@ -75,6 +75,10 @@ def leggi_argomenti():
                    help="bersaglio su cui si allena il modello di distanza")
     p.add_argument("--senza-feature-diff", action="store_true",
                    help="rappresenta la coppia senza |x_i - x_j|")
+    p.add_argument("--senza-query", action="store_true",
+                   help="un modello di distanza per foglia invece che per coppia (foglia, query): RTR*")
+    p.add_argument("--senza-foglie", action="store_true",
+                   help="primo stadio con una foglia sola, cioè solo la correzione dei vicini: solo s(x)")
     p.add_argument("--senza-modello", action="store_true", help="non salvare il modello allenato")
     return p.parse_args()
 
@@ -96,6 +100,10 @@ def nome_variante(args):
         nome += f"_{args.dist_objective}"
     if args.senza_feature_diff:
         nome += "_senzadiff"
+    if args.senza_query:
+        nome += "_senzaquery"
+    if args.senza_foglie:
+        nome += "_senzafoglie"
     return nome
 
 
@@ -108,15 +116,18 @@ def parametri_variante(args):
                feature_diff=not args.senza_feature_diff, dist_objective=args.dist_objective,
                feature_concat=True, feature_sq_diff=False, subsample=1.0, sdt_max_leaf_nodes=None,
                min_samples_split=2, verbose=False, n_jobs_leaf=args.n_jobs_leaf,
-               knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia, random_state=args.seed)
+               knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia,
+               senza_foglie=args.senza_foglie, random_state=args.seed)
+    # senza informazione di query il modello di distanza è uno per foglia: è RTR*
+    classe = WrapperRTRVariante if args.senza_query else WrapperMixRTRVariante
     match args.variante:
         case "rtr":
-            return WrapperMixRTRVariante, {**rtr, "distanza": "pdt"}
+            return classe, {**rtr, "distanza": "pdt"}
         case "rtrwrulecard":
             # lr = 1 come indicato da Landi il 15 settembre. Patience 15 e massimo 100 round sono
             # i valori degli esperimenti del paper di RuleCard (che prova anche 500 round).
-            return WrapperMixRTRVariante, {**rtr, "distanza": "rulecard", "rulecard_lr": 1.0,
-                                           "rulecard_max_n_iter": 100, "rulecard_patience": 15}
+            return classe, {**rtr, "distanza": "rulecard", "rulecard_lr": 1.0,
+                            "rulecard_max_n_iter": 100, "rulecard_patience": 15}
         case "knn":
             # k provvisorio, lo stesso del secondo stadio di RTR
             return WrapperKNN, dict(n_neighbors=5)
@@ -139,6 +150,16 @@ def gruppi_di_query(dataset, phi, query_disponibili, max_gruppi):
     return gruppi[:max_gruppi] if max_gruppi else gruppi
 
 
+def cella_di(modello, foglia, query):
+    """La cella di training di un documento di test.
+
+    Nel modello completo è la coppia (foglia, query); in RTR*, che le query non le
+    separa, è la sola foglia.
+    """
+    mappa = modello._leaf_dist_map
+    return mappa.get((foglia, int(query)), mappa.get(foglia))
+
+
 def quota_distanza(ranker, X, q, k):
     """Classifica ogni documento di test in base al suo gruppo foglia-query di training.
 
@@ -153,7 +174,7 @@ def quota_distanza(ranker, X, q, k):
             continue
         foglie = np.asarray(modello._shallow_dt.apply(X[maschera]))
         for foglia, qq in zip(foglie.tolist(), q[maschera].tolist()):
-            agg = modello._leaf_dist_map.get((foglia, int(qq)))
+            agg = cella_di(modello, foglia, qq)
             if agg is None:
                 conte["vuoto"] += 1
             elif agg._fit_X.shape[0] <= k:
@@ -175,7 +196,7 @@ def quota_distanza_pesata(ranker, X, q):
             continue
         foglie = np.asarray(modello._shallow_dt.apply(X[maschera]))
         for foglia, qq in zip(foglie.tolist(), q[maschera].tolist()):
-            agg = modello._leaf_dist_map.get((foglia, int(qq)))
+            agg = cella_di(modello, foglia, qq)
             totale += 1
             incide += agg is not None and np.unique(np.round(np.asarray(agg._y).ravel(), 10)).size > 1
     return incide / totale
@@ -285,7 +306,8 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
 def main():
     args = leggi_argomenti()
     opzioni_del_modello = (args.k != 5 or args.knn_pesato or args.min_doc_foglia or args.sdt_depth != 5
-                           or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff)
+                           or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff
+                           or args.senza_query or args.senza_foglie)
     if args.variante not in ("rtr", "rtrwrulecard") and opzioni_del_modello:
         raise SystemExit("le opzioni del modello valgono solo per rtr e rtrwrulecard")
     cls, params = parametri_variante(args)

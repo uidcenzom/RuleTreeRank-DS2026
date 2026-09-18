@@ -1,5 +1,5 @@
 """
-Varianti di RTR per la fase 4 della roadmap.
+Varianti di RTR per le fasi 3 e 4 della roadmap.
 
 Il file è nostro: i wrapper del gruppo in wrappers.py non vengono toccati.
 Con i parametri di default WrapperMixRTRVariante costruisce lo stesso modello di
@@ -11,6 +11,12 @@ Le varianti disponibili:
   non solo quali vicini vengono scelti
 - min_doc_foglia: numero minimo di documenti di training in ogni foglia del
   primo stadio, imposto allo stump usato a ogni nodo
+- senza_foglie: il primo stadio resta un'unica foglia, quindi r(x) è la media del
+  gruppo e la correzione dei vicini lavora su tutti i documenti insieme. È la
+  variante "solo s(x)" della Figura 5 del paper
+- WrapperRTRVariante al posto di WrapperMixRTRVariante: un modello di distanza
+  per foglia e non per coppia (foglia, query), cioè senza l'informazione di
+  query. È la variante RTR* della Figura 5
 """
 import numpy as np
 from RuleTree import RuleTreeRegressor
@@ -18,7 +24,7 @@ from RuleTree.stumps.regression import DecisionTreeStumpRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
 from ltr_utility import ModelParam
-from ruletreerank import MixedRTR, PairwiseDistanceTree, KNNRegFast, RuleCardPairwiseDistance
+from ruletreerank import MixedRTR, RuleTreeRank, PairwiseDistanceTree, KNNRegFast, RuleCardPairwiseDistance
 
 
 def media_pesata(distanze, valori):
@@ -78,56 +84,82 @@ class KNNRegPesato(KNNRegFast):
         return self.predict_fast(X)
 
 
+def componenti(kwargs):
+    """I pezzi del modello, uguali per la versione con e senza informazione di query.
+
+    Gli stump di RuleTree rompono a caso i pareggi fra split ugualmente buoni, e
+    RuleTreeRegressor non passa il proprio random_state allo stump che crea: con
+    n_jobs_leaf > 1 i processi paralleli non vedono il seed globale e due run uguali
+    davano risultati diversi. Il seed va quindi dato direttamente allo stump. Arriva
+    anche alla GAM, attraverso il base_regressor.
+    """
+    seed = kwargs.get("random_state")
+    rappresentazione = {
+        "base_regressor": ModelParam(RuleTreeRegressor, {
+            "max_depth": kwargs["pdt_depth"], "random_state": seed,
+            "base_stumps": DecisionTreeStumpRegressor(max_depth=1, random_state=seed)}),
+        "feature_concat": kwargs["feature_concat"],
+        "feature_diff": kwargs["feature_diff"],
+        "feature_sq_diff": kwargs["feature_sq_diff"],
+        "subsample": kwargs["subsample"],
+        "verbose": kwargs["verbose"],
+    }
+    match kwargs.get("distanza", "pdt"):
+        case "pdt":
+            distance_f = ModelParam(PairwiseDistanceTree, rappresentazione)
+        case "rulecard":
+            distance_f = ModelParam(RuleCardPairwiseDistance, {
+                **rappresentazione,
+                "learning_rate": kwargs["rulecard_lr"],
+                "max_n_iter": kwargs["rulecard_max_n_iter"],
+                "patience": kwargs["rulecard_patience"],
+            })
+        case altro:
+            raise ValueError(f"distanza sconosciuta: {altro}")
+
+    aggregazione = KNNRegPesato if kwargs.get("knn_pesato", False) else KNNRegFast
+
+    min_doc_foglia = kwargs.get("min_doc_foglia")
+    stump_primo_stadio = {"max_depth": 1, "random_state": seed}
+    if min_doc_foglia is not None:
+        stump_primo_stadio["min_samples_leaf"] = min_doc_foglia
+
+    # con profondità 0 l'albero del primo stadio non fa nessuno split: resta una
+    # foglia sola, r(x) è la media del gruppo e i vicini si cercano fra tutti i documenti
+    profondita = 0 if kwargs.get("senza_foglie", False) else kwargs["sdt_depth"]
+
+    return dict(
+        distance_f=distance_f,
+        aggregation_f=ModelParam(aggregazione, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}),
+        base_regressor=RuleTreeRegressor(
+            max_depth=profondita,
+            max_leaf_nodes=kwargs["sdt_max_leaf_nodes"],
+            min_samples_split=kwargs["min_samples_split"],
+            random_state=seed,
+            base_stumps=DecisionTreeStumpRegressor(**stump_primo_stadio)),
+        dist_objective=kwargs["dist_objective"],
+        verbose=kwargs["verbose"],
+        n_jobs_leaf=kwargs["n_jobs_leaf"],
+    )
+
+
 class WrapperMixRTRVariante(MixedRTR):
-    """MixedRTR con distanza, aggregazione e vincolo sulle foglie scelti dai parametri."""
+    """MixedRTR con distanza, aggregazione e vincoli sulle foglie scelti dai parametri.
+
+    Un modello di distanza per ogni coppia (foglia, query): è il modello completo.
+    """
 
     def __init__(self, **kwargs):
-        # Gli stump di RuleTree rompono a caso i pareggi fra split ugualmente buoni, e RuleTreeRegressor
-        # non passa il proprio random_state allo stump che crea: con n_jobs_leaf > 1 i processi paralleli
-        # non vedono il seed globale e due run uguali davano risultati diversi. Il seed va quindi dato
-        # direttamente allo stump. Arriva anche alla GAM, attraverso il base_regressor.
-        seed = kwargs.get("random_state")
-        rappresentazione = {
-            "base_regressor": ModelParam(RuleTreeRegressor, {
-                "max_depth": kwargs["pdt_depth"], "random_state": seed,
-                "base_stumps": DecisionTreeStumpRegressor(max_depth=1, random_state=seed)}),
-            "feature_concat": kwargs["feature_concat"],
-            "feature_diff": kwargs["feature_diff"],
-            "feature_sq_diff": kwargs["feature_sq_diff"],
-            "subsample": kwargs["subsample"],
-            "verbose": kwargs["verbose"],
-        }
-        match kwargs.get("distanza", "pdt"):
-            case "pdt":
-                distance_f = ModelParam(PairwiseDistanceTree, rappresentazione)
-            case "rulecard":
-                distance_f = ModelParam(RuleCardPairwiseDistance, {
-                    **rappresentazione,
-                    "learning_rate": kwargs["rulecard_lr"],
-                    "max_n_iter": kwargs["rulecard_max_n_iter"],
-                    "patience": kwargs["rulecard_patience"],
-                })
-            case altro:
-                raise ValueError(f"distanza sconosciuta: {altro}")
+        super().__init__(**componenti(kwargs))
 
-        aggregazione = KNNRegPesato if kwargs.get("knn_pesato", False) else KNNRegFast
 
-        min_doc_foglia = kwargs.get("min_doc_foglia")
-        stump_primo_stadio = {"max_depth": 1, "random_state": seed}
-        if min_doc_foglia is not None:
-            stump_primo_stadio["min_samples_leaf"] = min_doc_foglia
-        vincolo = {"base_stumps": DecisionTreeStumpRegressor(**stump_primo_stadio)}
+class WrapperRTRVariante(RuleTreeRank):
+    """RTR senza informazione di query, cioè RTR* della Figura 5 del paper.
 
-        super().__init__(
-            distance_f=distance_f,
-            aggregation_f=ModelParam(aggregazione, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}),
-            base_regressor=RuleTreeRegressor(
-                max_depth=kwargs["sdt_depth"],
-                max_leaf_nodes=kwargs["sdt_max_leaf_nodes"],
-                min_samples_split=kwargs["min_samples_split"],
-                random_state=seed,
-                **vincolo),
-            dist_objective=kwargs["dist_objective"],
-            verbose=kwargs["verbose"],
-            n_jobs_leaf=kwargs["n_jobs_leaf"],
-        )
+    Un modello di distanza per ogni foglia e non per ogni coppia (foglia, query):
+    i documenti di query diverse che cadono nella stessa foglia si fanno da vicini
+    a vicenda. Serve a misurare quanto vale separare le query.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**componenti(kwargs))
