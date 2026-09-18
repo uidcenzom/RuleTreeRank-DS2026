@@ -181,8 +181,16 @@ class ForestaInFoglia(KNNRegFast):
     proprio questo il punto: dice quanto si lascia sul tavolo restando leggibili.
     """
 
-    def __init__(self, n_alberi=100, seed=None, **kwargs):
-        super().__init__(**kwargs)
+    # La firma ripete per esteso quella di KNNRegFast di proposito: scikit-learn ricava
+    # i parametri validi dalla firma di __init__, e RTR chiama set_params(metric=...)
+    # sull'aggregatore appena costruito. Con **kwargs quei parametri non risulterebbero
+    # più validi e set_params solleverebbe un errore.
+    def __init__(self, n_neighbors=5, *, weights="uniform", algorithm="auto",
+                 leaf_size=30, p=2, metric="minkowski", metric_params=None,
+                 n_jobs=None, max_pairs_per_batch=2_000_000, n_alberi=100, seed=None):
+        super().__init__(n_neighbors=n_neighbors, weights=weights, algorithm=algorithm,
+                         leaf_size=leaf_size, p=p, metric=metric, metric_params=metric_params,
+                         n_jobs=n_jobs, max_pairs_per_batch=max_pairs_per_batch)
         self.n_alberi = n_alberi
         self.seed = seed
         self.foresta_ = None
