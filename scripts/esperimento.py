@@ -48,7 +48,7 @@ from ltr_utility.dataset import load_by_query_dataset, load_query_similarity, Da
 from ltr_utility.model_selection.evaluation import evaluate
 from ruletreerank import QueryRanker
 from experiments.wrappers import WrapperKNN, WrapperLGBMRanker, RandomRanker
-from experiments.varianti import WrapperMixRTRVariante, WrapperRTRVariante
+from experiments.varianti import ModelloForte, WrapperMixRTRVariante, WrapperRTRVariante
 
 K_NDCG = 10
 
@@ -56,7 +56,8 @@ K_NDCG = 10
 def leggi_argomenti():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", required=True, choices=["FINDHR", "FINDHRLIST", "MQ"])
-    p.add_argument("--variante", required=True, choices=["rtr", "rtrwrulecard", "knn", "lambdamart", "casuale"])
+    p.add_argument("--variante", required=True,
+                   choices=["rtr", "rtrwrulecard", "knn", "lambdamart", "casuale", "foresta", "boosting"])
     p.add_argument("--phi", type=int, nargs="+", default=[1, 2, 4, 6, 10])
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--max-gruppi", type=int, default=None,
@@ -79,6 +80,8 @@ def leggi_argomenti():
                    help="un modello di distanza per foglia invece che per coppia (foglia, query): RTR*")
     p.add_argument("--senza-foglie", action="store_true",
                    help="primo stadio con una foglia sola, cioè solo la correzione dei vicini: solo s(x)")
+    p.add_argument("--foresta-in-foglia", action="store_true",
+                   help="una foresta dentro la cella al posto del kNN: upper bound del secondo stadio")
     p.add_argument("--senza-modello", action="store_true", help="non salvare il modello allenato")
     return p.parse_args()
 
@@ -104,6 +107,8 @@ def nome_variante(args):
         nome += "_senzaquery"
     if args.senza_foglie:
         nome += "_senzafoglie"
+    if args.foresta_in_foglia:
+        nome += "_forestainfoglia"
     return nome
 
 
@@ -117,7 +122,8 @@ def parametri_variante(args):
                feature_concat=True, feature_sq_diff=False, subsample=1.0, sdt_max_leaf_nodes=None,
                min_samples_split=2, verbose=False, n_jobs_leaf=args.n_jobs_leaf,
                knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia,
-               senza_foglie=args.senza_foglie, random_state=args.seed)
+               senza_foglie=args.senza_foglie, foresta_in_foglia=args.foresta_in_foglia,
+               random_state=args.seed)
     # senza informazione di query il modello di distanza è uno per foglia: è RTR*
     classe = WrapperRTRVariante if args.senza_query else WrapperMixRTRVariante
     match args.variante:
@@ -136,6 +142,9 @@ def parametri_variante(args):
             return WrapperLGBMRanker, dict(verbose=-1)
         case "casuale":
             return RandomRanker, {}
+        case "foresta" | "boosting":
+            # upper bound senza foglie: un modello non interpretabile per gruppo di query
+            return ModelloForte, dict(tipo=args.variante, random_state=args.seed)
     raise ValueError(variante)
 
 
@@ -307,7 +316,7 @@ def main():
     args = leggi_argomenti()
     opzioni_del_modello = (args.k != 5 or args.knn_pesato or args.min_doc_foglia or args.sdt_depth != 5
                            or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff
-                           or args.senza_query or args.senza_foglie)
+                           or args.senza_query or args.senza_foglie or args.foresta_in_foglia)
     if args.variante not in ("rtr", "rtrwrulecard") and opzioni_del_modello:
         raise SystemExit("le opzioni del modello valgono solo per rtr e rtrwrulecard")
     cls, params = parametri_variante(args)

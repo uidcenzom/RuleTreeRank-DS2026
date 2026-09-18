@@ -21,9 +21,10 @@ Le varianti disponibili:
 import numpy as np
 from RuleTree import RuleTreeRegressor
 from RuleTree.stumps.regression import DecisionTreeStumpRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
-from ltr_utility import ModelParam
+from ltr_utility import ModelParam, RankerModel
 from ruletreerank import MixedRTR, RuleTreeRank, PairwiseDistanceTree, KNNRegFast, RuleCardPairwiseDistance
 
 
@@ -117,7 +118,12 @@ def componenti(kwargs):
         case altro:
             raise ValueError(f"distanza sconosciuta: {altro}")
 
-    aggregazione = KNNRegPesato if kwargs.get("knn_pesato", False) else KNNRegFast
+    aggregazione, parametri_aggregazione = KNNRegFast, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}
+    if kwargs.get("foresta_in_foglia", False):
+        aggregazione = ForestaInFoglia
+        parametri_aggregazione["seed"] = seed
+    elif kwargs.get("knn_pesato", False):
+        aggregazione = KNNRegPesato
 
     min_doc_foglia = kwargs.get("min_doc_foglia")
     stump_primo_stadio = {"max_depth": 1, "random_state": seed}
@@ -130,7 +136,7 @@ def componenti(kwargs):
 
     return dict(
         distance_f=distance_f,
-        aggregation_f=ModelParam(aggregazione, {"n_neighbors": kwargs["n_neighbors"], "n_jobs": 1}),
+        aggregation_f=ModelParam(aggregazione, parametri_aggregazione),
         base_regressor=RuleTreeRegressor(
             max_depth=profondita,
             max_leaf_nodes=kwargs["sdt_max_leaf_nodes"],
@@ -163,3 +169,63 @@ class WrapperRTRVariante(RuleTreeRank):
 
     def __init__(self, **kwargs):
         super().__init__(**componenti(kwargs))
+
+
+class ForestaInFoglia(KNNRegFast):
+    """Upper bound del secondo stadio: una foresta dentro la cella al posto del kNN.
+
+    Tiene l'interfaccia di KNNRegFast perché RTR costruisce l'aggregatore con quei
+    parametri e poi gli chiama set_params, fit e predict. La distanza appresa non
+    viene usata: la foresta guarda direttamente le feature dei documenti della cella
+    per prevedere il residuo. Il modello smette quindi di essere interpretabile, ed è
+    proprio questo il punto: dice quanto si lascia sul tavolo restando leggibili.
+    """
+
+    def __init__(self, n_alberi=100, seed=None, **kwargs):
+        super().__init__(**kwargs)
+        self.n_alberi = n_alberi
+        self.seed = seed
+        self.foresta_ = None
+
+    def fit(self, X, y):
+        # il fit del kNN serve comunque: RTR legge _fit_X e _y per le statistiche
+        super().fit(X, y)
+        self.foresta_ = RandomForestRegressor(
+            n_estimators=self.n_alberi, random_state=self.seed, n_jobs=1
+        ).fit(np.asarray(X), np.asarray(y).ravel())
+        return self
+
+    def predict_fast(self, x: np.ndarray) -> np.ndarray:
+        return self.foresta_.predict(np.asarray(x))
+
+    def predict_slow(self, X: np.ndarray, method="default"):
+        # con method="euclidian" RTR chiede apposta il confronto con la distanza
+        # euclidea, quindi lì si lascia rispondere il kNN come sempre
+        if method == "euclidian":
+            return super().predict_slow(X, method=method)
+        return self.foresta_.predict(np.asarray(X))
+
+
+class ModelloForte(RankerModel):
+    """Upper bound senza foglie: un solo modello non interpretabile per gruppo di query.
+
+    Non usa il primo stadio né la distanza appresa: allena una foresta o un gradient
+    boosting su tutti i documenti del gruppo. Serve a fissare il tetto raggiungibile
+    con gli stessi dati e lo stesso protocollo, rinunciando del tutto a spiegare.
+    """
+
+    def __init__(self, tipo="foresta", n_alberi=300, random_state=None, **kwargs):
+        self.tipo = tipo
+        if tipo == "foresta":
+            self.modello = RandomForestRegressor(n_estimators=n_alberi, random_state=random_state, n_jobs=1)
+        elif tipo == "boosting":
+            self.modello = HistGradientBoostingRegressor(random_state=random_state)
+        else:
+            raise ValueError(f"tipo sconosciuto: {tipo}")
+
+    def fit(self, X: np.ndarray, y: np.ndarray, q: np.ndarray = None, *args, **kwargs):
+        self.modello.fit(np.asarray(X), np.asarray(y).ravel())
+        return self
+
+    def predict(self, X: np.ndarray, q: np.ndarray = None, *args, **kwargs) -> np.ndarray:
+        return self.modello.predict(np.asarray(X))
