@@ -1,0 +1,11 @@
+dataset,phi,PDT fissa,seed PDT fissa,PDT scelta,seed PDT scelta,GAM fissa,seed GAM fissa,GAM scelta,seed GAM scelta,PDT: scelta - fissa,p PDT,GAM: scelta - fissa,p GAM,"GAM - PDT, fissa",p fissa,"GAM - PDT, scelta",p scelta
+FINDHRLIST,1,0.977,5,,0,0.9784,5,,0,,,,,0.0014,0.0161,,
+FINDHRLIST,2,0.9752,5,,0,0.9764,5,,0,,,,,0.0012,0.3486,,
+FINDHRLIST,4,0.975,5,,0,0.9764,5,,0,,,,,0.0014,0.0253,,
+FINDHRLIST,6,0.9728,5,,0,0.9748,5,,0,,,,,0.002,0.0732,,
+FINDHRLIST,10,0.9741,5,,0,0.9769,5,,0,,,,,0.0027,0.0022,,
+FINDHR,1,0.9521,5,,0,0.9535,5,,0,,,,,0.0014,0.7718,,
+FINDHR,2,0.9545,5,,0,0.9602,5,,0,,,,,0.0057,0.0136,,
+FINDHR,4,0.9539,5,,0,0.9602,5,,0,,,,,0.0063,0.1031,,
+FINDHR,6,0.9567,5,,0,0.9648,5,,0,,,,,0.008,0.0022,,
+FINDHR,10,0.9516,5,,0,0.9593,5,,0,,,,,0.0077,0.0017,,
