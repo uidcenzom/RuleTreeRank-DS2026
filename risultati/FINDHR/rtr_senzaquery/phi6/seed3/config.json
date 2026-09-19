@@ -1,0 +1,174 @@
+{
+  "dataset": "FINDHR",
+  "variante": "rtr_senzaquery",
+  "phi": 6,
+  "seed": 3,
+  "max_gruppi": null,
+  "modello": "WrapperRTRVariante",
+  "parametri": {
+    "sdt_depth": 5,
+    "pdt_depth": 4,
+    "n_neighbors": 5,
+    "feature_diff": true,
+    "dist_objective": "dist",
+    "feature_concat": true,
+    "feature_sq_diff": false,
+    "subsample": 1.0,
+    "sdt_max_leaf_nodes": null,
+    "min_samples_split": 2,
+    "verbose": false,
+    "n_jobs_leaf": 32,
+    "knn_pesato": false,
+    "min_doc_foglia": null,
+    "senza_foglie": false,
+    "random_state": 3,
+    "distanza": "pdt"
+  },
+  "n_query": 100,
+  "documenti_train": 28000,
+  "documenti_test": 12000,
+  "gruppi_di_query": [
+    [
+      0,
+      1,
+      9,
+      14,
+      51,
+      68
+    ],
+    [
+      2,
+      8,
+      11,
+      21,
+      72,
+      94
+    ],
+    [
+      3,
+      23,
+      24,
+      26,
+      31,
+      65
+    ],
+    [
+      4,
+      16,
+      42,
+      47,
+      60,
+      67
+    ],
+    [
+      5,
+      28,
+      43,
+      48,
+      61,
+      80
+    ],
+    [
+      6,
+      29,
+      84,
+      93,
+      96,
+      99
+    ],
+    [
+      7,
+      10,
+      12,
+      13,
+      15,
+      17
+    ],
+    [
+      18,
+      54,
+      77,
+      81,
+      83,
+      88
+    ],
+    [
+      19,
+      27,
+      35,
+      45,
+      49,
+      52
+    ],
+    [
+      20,
+      22,
+      32,
+      73,
+      89,
+      98
+    ],
+    [
+      25,
+      30,
+      34,
+      38,
+      50,
+      92
+    ],
+    [
+      33,
+      36,
+      37,
+      56,
+      63,
+      79
+    ],
+    [
+      39,
+      40,
+      41,
+      44,
+      46,
+      71
+    ],
+    [
+      53,
+      57,
+      70,
+      78,
+      82,
+      97
+    ],
+    [
+      55,
+      58,
+      59,
+      62,
+      64,
+      66
+    ],
+    [
+      69,
+      74,
+      75,
+      76,
+      85,
+      86
+    ],
+    [
+      87,
+      90,
+      91,
+      95
+    ]
+  ],
+  "commit": "db3a4dd (con modifiche non committate)",
+  "data": "2026-09-18T12:41:41",
+  "versioni": {
+    "scikit-learn": "1.8.0",
+    "RuleTree": "2026.4.9.93533",
+    "numpy": "2.5.3",
+    "lightgbm": "4.7.0"
+  }
+}

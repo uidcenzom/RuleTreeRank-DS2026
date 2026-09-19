@@ -1,0 +1,25 @@
+{
+  "tempo_fit_s": 41.19,
+  "tempo_predict_s": 0.88,
+  "ndcg@10_completo": {
+    "media": 0.9804791106302919,
+    "std": 0.012775882925804855,
+    "mediana": 0.982743481574625
+  },
+  "ndcg@10_solo_r": {
+    "media": 0.9429671166952656,
+    "std": 0.06884245973514448,
+    "mediana": 0.9690092994800228
+  },
+  "ndcg@10_knn_euclideo": {
+    "media": 0.9765319375317582,
+    "std": 0.018750505115912947,
+    "mediana": 0.981279054579673
+  },
+  "quota_documenti_test": {
+    "oltre_k_voti_diversi": 0.8165,
+    "oltre_k_stesso_voto": 0.009166666666666667,
+    "al_piu_k": 0.151,
+    "vuoto": 0.023333333333333334
+  }
+}

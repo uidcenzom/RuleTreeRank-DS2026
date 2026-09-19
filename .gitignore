@@ -30,3 +30,8 @@ results*/**/modello.pkl
 
 # Model selection: i file grezzi con tutte le configurazioni provate pesano decine di MB
 model_selection/
+
+# Cartelle di lavoro delle macchine: i risultati si pubblicano con misure/pubblica_risultati.py
+results/
+results_server/
+risultati_scelta/
