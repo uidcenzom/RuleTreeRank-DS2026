@@ -82,6 +82,9 @@ def leggi_argomenti():
                    help="primo stadio con una foglia sola, cioè solo la correzione dei vicini: solo s(x)")
     p.add_argument("--foresta-in-foglia", action="store_true",
                    help="una foresta dentro la cella al posto del kNN: upper bound del secondo stadio")
+    p.add_argument("--gruppi", type=Path, default=REPO / "dati_dal_gruppo" / "query_similarity_iommi_2026-09-18.json",
+                   help="file con i gruppi di query; per difetto quelli del gruppo di ricerca, "
+                        "gli stessi usati dalla model selection")
     p.add_argument("--configurazioni", type=Path, default=None,
                    help="file JSON con la configurazione scelta per ogni gruppo di query, prodotto da "
                         "misure/iperparametri/configurazioni_scelte.py: al posto di una configurazione "
@@ -154,15 +157,21 @@ def parametri_variante(args):
     raise ValueError(variante)
 
 
-def gruppi_di_query(dataset, phi, query_disponibili, max_gruppi):
-    # FINDHRLIST usa gli stessi gruppi di FINDHR, come nei notebook del gruppo
-    cartella = {"FINDHR": "FINDHR", "FINDHRLIST": "FINDHR", "MQ": "MQ2007"}[dataset]
-    tutti = load_query_similarity(REPO / "experiments/query_based" / cartella / "results")
+def gruppi_di_query(args, phi, query_disponibili):
+    """I gruppi di query per un |phi|, letti dal file indicato da --gruppi.
+
+    Di norma sono quelli del gruppo di ricerca, gli stessi usati dalla model selection.
+    Coincidono con quelli del repository solo per |phi| = 1: già da |phi| = 2 le partizioni
+    sono diverse, quindi usare gli uni al posto degli altri cambia i risultati e rende
+    inapplicabili le configurazioni scelte. I gruppi davvero usati finiscono in config.json
+    di ogni run, così i risultati vecchi restano interpretabili.
+    """
     # pandas legge le chiavi del json come interi
-    gruppi = [[int(q) for q in g] for g in tutti[phi]]
+    tutti = pd.read_json(args.gruppi)
+    gruppi = [[int(q) for q in g] for g in tutti[phi].dropna().tolist()]
     mancanti = set(sum(gruppi, [])) - set(int(q) for q in query_disponibili)
     assert not mancanti, f"query dei gruppi assenti dal dataset: {sorted(mancanti)[:10]}"
-    return gruppi[:max_gruppi] if max_gruppi else gruppi
+    return gruppi[:args.max_gruppi] if args.max_gruppi else gruppi
 
 
 # gli unici parametri che la model selection fa variare: tutto il resto (tipo di distanza,
@@ -292,7 +301,7 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
         return
     cartella.mkdir(parents=True, exist_ok=True)
 
-    gruppi = gruppi_di_query(args.dataset, phi, train_valid.unique_q, args.max_gruppi)
+    gruppi = gruppi_di_query(args, phi, train_valid.unique_q)
     # una configurazione per gruppo se è stato passato il file della model selection,
     # altrimenti la stessa per tutti
     parametri = configurazioni_dei_gruppi(args, phi, gruppi, params) if args.configurazioni else params
