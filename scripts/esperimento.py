@@ -82,6 +82,10 @@ def leggi_argomenti():
                    help="primo stadio con una foglia sola, cioè solo la correzione dei vicini: solo s(x)")
     p.add_argument("--foresta-in-foglia", action="store_true",
                    help="una foresta dentro la cella al posto del kNN: upper bound del secondo stadio")
+    p.add_argument("--configurazioni", type=Path, default=None,
+                   help="file JSON con la configurazione scelta per ogni gruppo di query, prodotto da "
+                        "misure/iperparametri/configurazioni_scelte.py: al posto di una configurazione "
+                        "unica, ogni gruppo usa la propria")
     p.add_argument("--senza-modello", action="store_true", help="non salvare il modello allenato")
     return p.parse_args()
 
@@ -109,6 +113,8 @@ def nome_variante(args):
         nome += "_senzafoglie"
     if args.foresta_in_foglia:
         nome += "_forestainfoglia"
+    if args.configurazioni:
+        nome += "_scelta"
     return nome
 
 
@@ -159,6 +165,36 @@ def gruppi_di_query(dataset, phi, query_disponibili, max_gruppi):
     return gruppi[:max_gruppi] if max_gruppi else gruppi
 
 
+# gli unici parametri che la model selection fa variare: tutto il resto (tipo di distanza,
+# seme, processi, varianti) resta quello della riga di comando
+GRIGLIA = ("feature_diff", "pdt_depth", "n_neighbors", "sdt_depth", "dist_objective")
+
+
+def configurazioni_dei_gruppi(args, phi, gruppi, params):
+    """La configurazione scelta per ogni gruppo, nell'ordine dei gruppi.
+
+    QueryRanker accetta una lista di configurazioni al posto di una sola, e la abbina
+    ai gruppi per posizione: un disallineamento darebbe a ogni gruppo la configurazione
+    di un altro senza che nessuno se ne accorga, quindi le query di ogni voce vengono
+    confrontate con quelle del gruppo corrispondente.
+    """
+    scelte = json.loads(args.configurazioni.read_text(encoding="utf-8"))
+    voci = [v for v in scelte[args.dataset][args.variante] if int(v["phi"]) == phi]
+    assert len(voci) >= len(gruppi), \
+        f"|phi|={phi}: {len(voci)} configurazioni per {len(gruppi)} gruppi di query"
+    # con --max-gruppi i gruppi sono i primi N, quindi si tengono le prime N configurazioni;
+    # che siano davvero le loro lo garantisce il confronto sulle query qui sotto
+    voci = voci[:len(gruppi)]
+
+    per_gruppo = []
+    for voce, gruppo in zip(voci, gruppi):
+        assert [int(q) for q in voce["query"]] == gruppo, \
+            f"|phi|={phi}: le query della configurazione non coincidono con quelle del gruppo"
+        scelti = {k: voce["configurazione"][k] for k in GRIGLIA if k in voce["configurazione"]}
+        per_gruppo.append({**params, **scelti})
+    return per_gruppo
+
+
 def cella_di(modello, foglia, query):
     """La cella di training di un documento di test.
 
@@ -169,12 +205,14 @@ def cella_di(modello, foglia, query):
     return mappa.get((foglia, int(query)), mappa.get(foglia))
 
 
-def quota_distanza(ranker, X, q, k):
+def quota_distanza(ranker, X, q):
     """Classifica ogni documento di test in base al suo gruppo foglia-query di training.
 
     La distanza può cambiare lo score solo se il gruppo ha più di k documenti con voti
     diversi. Dentro una foglia r(x) è costante, quindi residui diversi vogliono dire
-    voti diversi.
+    voti diversi. Il numero di vicini si legge dal modello di quella cella e non dai
+    parametri, perché con le configurazioni scelte per gruppo k cambia da gruppo a
+    gruppo, ed è comunque il valore davvero usato.
     """
     conte = Counter()
     for modello, qs in ranker._models_to_qs.items():
@@ -184,6 +222,7 @@ def quota_distanza(ranker, X, q, k):
         foglie = np.asarray(modello._shallow_dt.apply(X[maschera]))
         for foglia, qq in zip(foglie.tolist(), q[maschera].tolist()):
             agg = cella_di(modello, foglia, qq)
+            k = getattr(agg, "n_neighbors", 0) if agg is not None else 0
             if agg is None:
                 conte["vuoto"] += 1
             elif agg._fit_X.shape[0] <= k:
@@ -254,13 +293,16 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
     cartella.mkdir(parents=True, exist_ok=True)
 
     gruppi = gruppi_di_query(args.dataset, phi, train_valid.unique_q, args.max_gruppi)
+    # una configurazione per gruppo se è stato passato il file della model selection,
+    # altrimenti la stessa per tutti
+    parametri = configurazioni_dei_gruppi(args, phi, gruppi, params) if args.configurazioni else params
     query = sorted(set(sum(gruppi, [])))
     tr, te = train_valid[query], test[query]
     X, q, y = np.asarray(te.x), np.asarray(te.q), np.asarray(te.y)
 
     config = {
         "dataset": args.dataset, "variante": nome_variante(args), "phi": phi, "seed": args.seed,
-        "max_gruppi": args.max_gruppi, "modello": cls.__name__, "parametri": params,
+        "max_gruppi": args.max_gruppi, "modello": cls.__name__, "parametri": parametri,
         "n_query": len(query), "documenti_train": int(len(tr.y)), "documenti_test": int(len(y)),
         "gruppi_di_query": gruppi, "commit": commit_corrente(), "data": datetime.now().isoformat(timespec="seconds"),
         "versioni": {p: version(p) for p in ["scikit-learn", "RuleTree", "numpy", "lightgbm"]},
@@ -270,7 +312,7 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
     # il seed controlla le parti casuali dei modelli; lo split dei dati è fisso nel loader
     np.random.seed(args.seed)
     t0 = time.time()
-    ranker = QueryRanker(ranker=ModelParam(model=cls, param=params), q_per_model=phi, batch_query=gruppi)
+    ranker = QueryRanker(ranker=ModelParam(model=cls, param=parametri), q_per_model=phi, batch_query=gruppi)
     ranker.fit(train=tr)
     tempo_fit = time.time() - t0
 
@@ -289,7 +331,7 @@ def esegui_phi(args, phi, train_valid, test, cls, params):
         metriche[f"ndcg@{K_NDCG}_{nome}"] = {"media": float(media), "std": float(dev), "mediana": float(mediana)}
         per_query[nome] = evaluate(pred=pred, labels=y, groups_count=te.group_count, k=K_NDCG, aggregated=False)
     if args.variante in ("rtr", "rtrwrulecard"):
-        metriche["quota_documenti_test"] = quota_distanza(ranker, X, q, params["n_neighbors"])
+        metriche["quota_documenti_test"] = quota_distanza(ranker, X, q)
         if params["knn_pesato"]:
             metriche["quota_distanza_incide_con_pesi"] = quota_distanza_pesata(ranker, X, q)
     if args.variante == "rtrwrulecard":
@@ -316,7 +358,8 @@ def main():
     args = leggi_argomenti()
     opzioni_del_modello = (args.k != 5 or args.knn_pesato or args.min_doc_foglia or args.sdt_depth != 5
                            or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff
-                           or args.senza_query or args.senza_foglie or args.foresta_in_foglia)
+                           or args.senza_query or args.senza_foglie or args.foresta_in_foglia
+                           or args.configurazioni)
     if args.variante not in ("rtr", "rtrwrulecard") and opzioni_del_modello:
         raise SystemExit("le opzioni del modello valgono solo per rtr e rtrwrulecard")
     cls, params = parametri_variante(args)
