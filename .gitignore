@@ -27,3 +27,6 @@ results/**/modello.pkl
 # Predizioni salvate dagli esperimenti: pesanti, restano solo in locale
 results*/**/predizioni.npz
 results*/**/modello.pkl
+
+# Model selection: i file grezzi con tutte le configurazioni provate pesano decine di MB
+model_selection/
