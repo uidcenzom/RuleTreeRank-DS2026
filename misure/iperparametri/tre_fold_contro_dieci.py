@@ -63,7 +63,14 @@ def per_query(cartelle, dataset, variante, phi):
 
 
 def confronta_scelte(tre: pd.DataFrame, dieci: pd.DataFrame, dataset: str):
-    unito = tre.merge(dieci, on=["phi", "gruppo"], suffixes=("_3", "_10"))
+    # i gruppi si accoppiano dalle query che contengono, non dalla posizione: le due
+    # selezioni possono coprire un insieme diverso di |phi|, e allora l'indice dentro
+    # il file slitta e l'accoppiamento per posizione perderebbe dei gruppi in silenzio
+    unito = tre.merge(dieci, on=["phi", "query"], suffixes=("_3", "_10"))
+    comuni = set(tre["phi"]) & set(dieci["phi"])
+    attesi = len(tre[tre["phi"].isin(comuni)])
+    if len(unito) != attesi:
+        print(f"  attenzione: {attesi - len(unito)} gruppi su {attesi} non si accoppiano")
     righe = []
     for phi, sotto in unito.groupby("phi"):
         diverse = sum(any(sotto[f"{k}_3"].iloc[i] != sotto[f"{k}_10"].iloc[i] for k in IPER)
