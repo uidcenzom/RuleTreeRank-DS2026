@@ -119,6 +119,13 @@ def main():
     if "--loro" in sys.argv:
         loro_base = Path(sys.argv[sys.argv.index("--loro") + 1])
 
+    # il nome dei file prodotti si puo' cambiare, altrimenti una seconda selezione
+    # (per esempio con un numero di fold diverso) sovrascriverebbe la prima, che e'
+    # quella con cui sono gia' stati fatti i run. Si chiama nome_uscita e non nome
+    # perche' nel ciclo qui sotto `nome` e' gia' il nome del file di model selection:
+    # usare lo stesso identificatore lo faceva sovrascrivere dal ciclo
+    nome_uscita = sys.argv[sys.argv.index("--nome") + 1] if "--nome" in sys.argv else None
+
     riassunti, per_run, tabelle = [], {}, {}
     for (dataset, variante), nome in NOSTRI_FILE.items():
         percorso = base / nome
@@ -143,9 +150,10 @@ def main():
         print(" ", chiave[0], chiave[1], valori_scelti(t))
 
     qui = Path(__file__).resolve()
-    csv = qui.with_suffix(".csv")
+    radice = qui.with_name(nome_uscita) if nome_uscita else qui
+    csv = radice.with_suffix(".csv")
     pd.concat(riassunti, ignore_index=True).to_csv(csv, index=False)
-    js = qui.with_suffix(".json")
+    js = radice.with_suffix(".json")
     js.write_text(json.dumps(per_run), encoding="utf-8")
     print("\nscritti", csv.name, "e", js.name)
 

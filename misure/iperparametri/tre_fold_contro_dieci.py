@@ -17,8 +17,11 @@ Lo script confronta tre cose:
 Il punto 3 e' l'unico che conta davvero: i primi due dicono che la selezione si e'
 spostata, il terzo dice se si e' spostata nella direzione giusta.
 
+I run riaddestrati con le due selezioni si chiamano allo stesso modo, `rtr_scelta`,
+e si distinguono solo per la cartella in cui stanno: vanno quindi tenuti separati.
+
 Uso:
-  python tre_fold_contro_dieci.py [cartella tre fold] [cartella dieci fold] [cartelle dei run ...]
+  python tre_fold_contro_dieci.py [selezione 3 fold] [selezione 10 fold] [run 10 fold] [run 3 fold e fissi ...]
 """
 import json
 import sys
@@ -80,7 +83,11 @@ def main():
     argomenti = sys.argv[1:]
     tre_fold = Path(argomenti[0]) if argomenti else Path("model_selection")
     dieci_fold = Path(argomenti[1]) if len(argomenti) > 1 else Path("model_selection_fold10")
-    run = argomenti[2:] or ["risultati_scelta_fold10", "risultati_scelta", "risultati"]
+    # i run riaddestrati con le due selezioni hanno lo stesso nome di variante,
+    # `rtr_scelta`, e si distinguono solo per la cartella da cui vengono: vanno
+    # quindi letti da radici separate, altrimenti gli uni coprirebbero gli altri
+    run_dieci = argomenti[2] if len(argomenti) > 2 else "risultati_scelta_fold10"
+    run_altri = argomenti[3:] or ["risultati_scelta", "risultati"]
 
     tabelle = []
     for dataset in DATASET:
@@ -104,9 +111,9 @@ def main():
     righe = []
     for dataset in DATASET:
         for phi in PHI:
-            fissa = per_query(run, dataset, "rtr", phi)
-            tre_q = per_query(run, dataset, "rtr_scelta", phi)
-            dieci_q = per_query(run, dataset, "rtr_scelta10", phi)
+            fissa = per_query(run_altri, dataset, "rtr", phi)
+            tre_q = per_query(run_altri, dataset, "rtr_scelta", phi)
+            dieci_q = per_query([run_dieci], dataset, "rtr_scelta", phi)
             if dieci_q is None:
                 continue
             riga = {"dataset": dataset, "phi": phi}
