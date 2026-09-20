@@ -1,0 +1,41 @@
+{
+  "tempo_fit_s": 219.67,
+  "tempo_predict_s": 5.53,
+  "ndcg@10_completo": {
+    "media": 0.9793894216404755,
+    "std": 0.017535904506896578,
+    "mediana": 0.9827210572080232
+  },
+  "ndcg@10_solo_r": {
+    "media": 0.9599636203403044,
+    "std": 0.04407266818749319,
+    "mediana": 0.9724064987186916
+  },
+  "ndcg@10_knn_euclideo": {
+    "media": 0.9777020132118897,
+    "std": 0.018322696264652733,
+    "mediana": 0.98290146297796
+  },
+  "quota_documenti_test": {
+    "oltre_k_voti_diversi": 0.8155833333333333,
+    "oltre_k_stesso_voto": 0.006583333333333333,
+    "al_piu_k": 0.1485,
+    "vuoto": 0.029333333333333333
+  },
+  "gam": {
+    "gruppi_foglia_query": 3580,
+    "motivi_ripiego": {
+      "None": 1613,
+      "poche_istanze": 1542,
+      "modello_vuoto": 425
+    },
+    "round_medio": 51.49473031618103,
+    "round_mediano": 35.0,
+    "quota_round_al_massimo": 0.4023558586484811,
+    "quota_termini_per_colonna": {
+      "a": 0.7730463153585919,
+      "b": 0.08020611357917674,
+      "differenza": 0.14674757106223138
+    }
+  }
+}
