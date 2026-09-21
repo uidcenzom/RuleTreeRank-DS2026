@@ -137,7 +137,11 @@ def main():
                     riga[f"p {nome}"] = round(float(wilcoxon(d).pvalue), 4) if len(d) else None
             righe.append(riga)
     if righe:
-        print(pd.DataFrame(righe).to_string(index=False))
+        t = pd.DataFrame(righe)
+        print(t.to_string(index=False))
+        uscita = Path(__file__).with_name("tre_fold_contro_dieci_test.csv")
+        t.to_csv(uscita, index=False)
+        print("scritto", uscita.name)
     else:
         print("  i run con le configurazioni a dieci fold non ci sono ancora")
 
