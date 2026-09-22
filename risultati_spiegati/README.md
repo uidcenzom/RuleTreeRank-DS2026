@@ -6,7 +6,7 @@ leggibili. Ogni tabella è un CSV in questa stessa cartella, e per ognuna è
 indicato da quale script di `misure/` proviene, se qualcuno volesse risalire al
 calcolo.
 
-Aggiornata al 21 settembre 2026.
+Aggiornata al 22 settembre 2026.
 
 ---
 
@@ -27,12 +27,20 @@ uno ciascuno:
 | pezzo | cosa fa | cosa ci abbiamo messo |
 |---|---|---|
 | **distanza appresa** | decide *quali* documenti della cella sono vicini fra loro | PDT (albero di distanza a coppie, l'originale) oppure la **GAM di RuleCard** (modello additivo) |
-| **aggregatore** | decide *come* si combinano i vicini per correggere il punteggio | kNN, cioè la media delle etichette dei k vicini scelti (l'originale) oppure una **foresta dentro la cella** |
+| **aggregatore** | decide *come* si combinano i vicini per correggere il punteggio | kNN: prende i k vicini scelti al passo precedente e ne fa la media delle etichette (l'originale) |
 
-Quando scriviamo «abbiamo cambiato la distanza» intendiamo il primo pezzo.
-Quando scriviamo «abbiamo cambiato l'aggregazione» intendiamo il secondo. Non
-sono alternative sullo stesso pezzo: sono due caselle diverse della stessa
-architettura.
+Quando scriviamo «abbiamo cambiato la distanza» intendiamo il primo pezzo: il
+PDT sostituito dalla GAM di RuleCard, con il kNN che resta identico.
+
+**La foresta dentro la cella è invece un'altra cosa, e va detta con precisione.**
+Non è una funzione di aggregazione che prende k vicini e ne restituisce uno:
+sostituisce **tutto il secondo stadio dentro la cella**. Non usa la distanza
+appresa e non recupera nessun vicino. Addestra una `RandomForestRegressor` sui
+documenti della cella, dalle feature al residuo, e in predizione risponde
+direttamente la foresta. Nel codice è `ForestaInFoglia` in
+`experiments/varianti.py`: eredita l'interfaccia di `KNNRegFast` solo perché RTR
+costruisce l'aggregatore con quei parametri e poi gli chiama `fit` e `predict`,
+ma `n_neighbors` non entra nella predizione.
 
 ## 2. Glossario minimo
 
@@ -73,12 +81,13 @@ modello di distanza.
 
 File: `confronto_multiseed_server.csv`.
 
-## 4. Il collo di bottiglia non è la distanza, è l'aggregazione
+## 4. Il collo di bottiglia non è la distanza, è la correzione dentro la cella
 
 Stesso riferimento (RTR con PDT e kNN), due modifiche alternative: cambiare la
-distanza, oppure cambiare l'aggregatore.
+distanza appresa lasciando il kNN, oppure sostituire tutta la correzione dentro
+la cella con la foresta.
 
-| dataset | \|φ\| | guadagno cambiando la **distanza** | guadagno cambiando l'**aggregazione** |
+| dataset | \|φ\| | guadagno cambiando la **distanza** | guadagno sostituendo la **correzione nella cella** |
 |---|---|---|---|
 | FINDHR | 1 | +0.0014 | +0.0055 |
 | FINDHR | 2 | +0.0057 | +0.0093 |
@@ -97,10 +106,39 @@ distanza, oppure cambiare l'aggregatore.
 > spiegare perché un documento viene prima di un altro. Non è un modello che
 > proponiamo, è un **upper bound**: serve a misurare quanto si lascia sul tavolo
 > restando leggibili. Il risultato non dice «usate la foresta», dice «se si vuole
-> guadagnare, il pezzo su cui conviene lavorare è l'aggregazione, non la
-> distanza».
+> guadagnare, il pezzo su cui conviene lavorare è quello che succede dentro la
+> cella, non la distanza che sceglie i vicini».
 
 File: `distanza_o_aggregazione.csv`.
+
+Rimisurato con cinque semi, quel +0.0086 è positivo e significativo in **dieci
+combinazioni su dieci**: è l'evidenza più solida che abbiamo, più forte del
+risultato principale fra GAM e PDT, che è 10 su 10 positivo ma 6 su 10
+significativo.
+
+### Cosa abbiamo provato che non funziona
+
+Tutte a cinque semi, sulle stesse dieci combinazioni e contro lo stesso
+riferimento:
+
+| variante | media | positiva | significativa |
+|---|---|---|---|
+| kNN pesato per 1/distanza invece che uniforme | **−0.0060** | 0 su 10 | 8 su 10 |
+| minimo 6 documenti di training per foglia | −0.0009 | 4 su 10 | 2 su 10 |
+| minimo 10 documenti di training per foglia | −0.0035 | 2 su 10 | 2 su 10 |
+
+Il kNN pesato non è un pareggio: peggiora in tutte e dieci le combinazioni, in
+otto in modo significativo. È coerente con il resto del quadro — nelle celle
+piccole k è quasi la dimensione della cella, quindi il kNN prende comunque quasi
+tutti i documenti e pesare i valori della distanza aggiunge solo varianza. Il
+vincolo sulla dimensione delle foglie non sposta niente.
+
+Messo insieme al punto qui sopra: **finora nessuna modifica interpretabile
+migliora il secondo stadio, e l'unica cosa che guadagna non è interpretabile.**
+Lo spazio aperto è un aggregatore che guadagni restando leggibile, ed è quello
+su cui stiamo lavorando adesso.
+
+File: `varianti_del_modello.csv`.
 
 ## 5. Dove siamo, fra il caso e i modelli non interpretabili
 
@@ -190,3 +228,4 @@ File: `tre_fold_contro_dieci.csv` (quali profondità vengono scelte) e
 | `configurazione_scelta.csv` | confronto a configurazione fissa e a configurazione scelta (provvisoria, vedi §8) |
 | `tre_fold_contro_dieci.csv` | come si sposta la profondità scelta passando da tre a dieci fold |
 | `tre_fold_contro_dieci_test.csv` | l'effetto delle due selezioni sul test |
+| `varianti_del_modello.csv` | le varianti del primo e del secondo stadio contro il riferimento |
