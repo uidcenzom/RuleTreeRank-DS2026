@@ -116,3 +116,24 @@ The final ranking for a query is obtained by sorting items by $f(\mathbf{x})$ in
 - `ltr_utility/`: shared interfaces, dataset utilities, query splitting, clustering, and explanation helpers.
 - `examples/`: executable notebooks for minimal and synthetic ranking workflows.
 - `experiments/`: experiment scripts and evaluation notebooks.
+
+## This Fork: RTRwRuleCard
+
+This fork replaces the second-stage pairwise distance model of RTR with the
+additive model (GAM) of RuleCard, and measures what changes. Three folders hold
+everything that was added here:
+
+- `risultati_spiegati/`: **start here.** A guided README with the main results as
+  plain tables, a short glossary, the measured training costs, and what is still
+  open. It is written to be read on its own, without running anything.
+- `misure/`: the analysis scripts and the tables they produce, grouped by topic
+  (`confronto_modelli/`, `iperparametri/`, `analisi/`). Each script reads saved
+  runs and trains nothing, so every table can be rebuilt on a different set of
+  results by passing another folder.
+- `risultati/`: one folder per run, as `dataset/model/phi<n>/seed<s>/`, with the
+  full configuration, the metrics and the NDCG@10 of every test query. Models and
+  predictions are not published because of their size.
+
+The experiment runner is `scripts/esperimento.py`; the per-group hyperparameter
+search is `scripts/model_selection.py`; the model variants compared in the
+tables are in `experiments/varianti.py`.
