@@ -1,5 +1,5 @@
 """
-Cambiare la distanza o cambiare l'aggregazione: quale delle due pesa di più.
+Cambiare la distanza o sostituire la correzione dentro la cella: quale pesa di più.
 
 Il secondo stadio di RTR fa due cose: impara una distanza e poi aggrega i residui
 dei vicini con un kNN. Questo script confronta, a partire dallo stesso modello di
@@ -106,7 +106,7 @@ def main():
     print(f"guadagno medio cambiando l'aggregazione: {g_aggr.mean():+.4f} "
           f"(da {g_aggr.min():+.4f} a {g_aggr.max():+.4f})")
     confronti = (tabella["guadagno_aggregazione"] > tabella["guadagno_distanza"]).sum()
-    print(f"l'aggregazione pesa più della distanza in {confronti} casi su {len(tabella)}")
+    print(f"la correzione nella cella pesa più della distanza in {confronti} casi su {len(tabella)}")
 
     out = Path(__file__).with_suffix(".csv")
     tabella.to_csv(out, index=False)
