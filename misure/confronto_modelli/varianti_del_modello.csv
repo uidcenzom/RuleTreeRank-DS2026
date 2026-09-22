@@ -1,41 +1,41 @@
-dataset,phi,variante,semi,semi_riferimento,riferimento,con_la_variante,differenza,p
-FINDHR,1,kNN pesato per distanza,5,5,0.9521,0.9455,-0.0066,0.0007
-FINDHR,1,minimo 6 documenti per foglia,5,5,0.9521,0.9513,-0.0008,0.5841
-FINDHR,1,minimo 10 documenti per foglia,5,5,0.9521,0.9451,-0.007,0.1576
-FINDHR,1,foresta nella cella (non interpretabile),5,5,0.9521,0.9576,0.0055,0.013
-FINDHR,2,kNN pesato per distanza,5,5,0.9545,0.9499,-0.0046,0.1235
-FINDHR,2,minimo 6 documenti per foglia,5,5,0.9545,0.9522,-0.0023,0.834
-FINDHR,2,minimo 10 documenti per foglia,5,5,0.9545,0.95,-0.0045,0.3114
-FINDHR,2,foresta nella cella (non interpretabile),5,5,0.9545,0.9638,0.0093,0.0004
-FINDHR,4,kNN pesato per distanza,5,5,0.9539,0.9486,-0.0053,0.2756
-FINDHR,4,minimo 6 documenti per foglia,5,5,0.9539,0.9565,0.0026,0.4792
-FINDHR,4,minimo 10 documenti per foglia,5,5,0.9539,0.9543,0.0004,0.6062
-FINDHR,4,foresta nella cella (non interpretabile),5,5,0.9539,0.9662,0.0124,0.0005
-FINDHR,6,kNN pesato per distanza,5,5,0.9567,0.9449,-0.0119,0.0058
-FINDHR,6,minimo 6 documenti per foglia,5,5,0.9567,0.9518,-0.0049,0.1185
-FINDHR,6,minimo 10 documenti per foglia,5,5,0.9567,0.9509,-0.0059,0.0541
-FINDHR,6,foresta nella cella (non interpretabile),5,5,0.9567,0.9699,0.0132,0.0001
-FINDHR,10,kNN pesato per distanza,5,5,0.9516,0.9429,-0.0086,0.0091
-FINDHR,10,minimo 6 documenti per foglia,5,5,0.9516,0.949,-0.0026,0.1856
-FINDHR,10,minimo 10 documenti per foglia,5,5,0.9516,0.949,-0.0026,0.1801
-FINDHR,10,foresta nella cella (non interpretabile),5,5,0.9516,0.9651,0.0136,0.0003
-FINDHRLIST,1,kNN pesato per distanza,5,5,0.977,0.9743,-0.0027,0.0061
-FINDHRLIST,1,minimo 6 documenti per foglia,5,5,0.977,0.9725,-0.0045,0.0059
-FINDHRLIST,1,minimo 10 documenti per foglia,5,5,0.977,0.9622,-0.0147,0.0
-FINDHRLIST,1,foresta nella cella (non interpretabile),5,5,0.977,0.9806,0.0036,0.0093
-FINDHRLIST,2,kNN pesato per distanza,5,5,0.9752,0.9724,-0.0029,0.0204
-FINDHRLIST,2,minimo 6 documenti per foglia,5,5,0.9752,0.9758,0.0005,0.6848
-FINDHRLIST,2,minimo 10 documenti per foglia,5,5,0.9752,0.9734,-0.0019,0.0462
-FINDHRLIST,2,foresta nella cella (non interpretabile),5,5,0.9752,0.9807,0.0054,0.0002
-FINDHRLIST,4,kNN pesato per distanza,5,5,0.975,0.9692,-0.0058,0.0039
-FINDHRLIST,4,minimo 6 documenti per foglia,5,5,0.975,0.9756,0.0007,0.6072
-FINDHRLIST,4,minimo 10 documenti per foglia,5,5,0.975,0.9741,-0.0009,0.4464
-FINDHRLIST,4,foresta nella cella (non interpretabile),5,5,0.975,0.9816,0.0066,0.0
-FINDHRLIST,6,kNN pesato per distanza,5,5,0.9728,0.9689,-0.0038,0.0325
-FINDHRLIST,6,minimo 6 documenti per foglia,5,5,0.9728,0.9754,0.0026,0.0312
-FINDHRLIST,6,minimo 10 documenti per foglia,5,5,0.9728,0.9749,0.0022,0.0859
-FINDHRLIST,6,foresta nella cella (non interpretabile),5,5,0.9728,0.9811,0.0084,0.0
-FINDHRLIST,10,kNN pesato per distanza,5,5,0.9741,0.966,-0.0081,0.0
-FINDHRLIST,10,minimo 6 documenti per foglia,5,5,0.9741,0.9737,-0.0004,0.8307
-FINDHRLIST,10,minimo 10 documenti per foglia,5,5,0.9741,0.9736,-0.0005,0.8699
-FINDHRLIST,10,foresta nella cella (non interpretabile),5,5,0.9741,0.9827,0.0085,0.0
+dataset,phi,variante,semi,semi_riferimento,riferimento,con_la_variante,differenza,gain,p
+FINDHR,1,kNN pesato per distanza,5,5,0.9521,0.9455,-0.0066,-0.0066,0.0007
+FINDHR,1,minimo 6 documenti per foglia,5,5,0.9521,0.9513,-0.0008,-0.0008,0.5841
+FINDHR,1,minimo 10 documenti per foglia,5,5,0.9521,0.9451,-0.007,-0.007,0.1576
+FINDHR,1,foresta nella cella (non interpretabile),5,5,0.9521,0.9576,0.0055,0.0055,0.013
+FINDHR,2,kNN pesato per distanza,5,5,0.9545,0.9499,-0.0046,-0.0046,0.1235
+FINDHR,2,minimo 6 documenti per foglia,5,5,0.9545,0.9522,-0.0023,-0.0023,0.834
+FINDHR,2,minimo 10 documenti per foglia,5,5,0.9545,0.95,-0.0045,-0.0045,0.3114
+FINDHR,2,foresta nella cella (non interpretabile),5,5,0.9545,0.9638,0.0093,0.0093,0.0004
+FINDHR,4,kNN pesato per distanza,5,5,0.9539,0.9486,-0.0053,-0.0053,0.2756
+FINDHR,4,minimo 6 documenti per foglia,5,5,0.9539,0.9565,0.0026,0.0026,0.4792
+FINDHR,4,minimo 10 documenti per foglia,5,5,0.9539,0.9543,0.0004,0.0004,0.6062
+FINDHR,4,foresta nella cella (non interpretabile),5,5,0.9539,0.9662,0.0124,0.0124,0.0005
+FINDHR,6,kNN pesato per distanza,5,5,0.9567,0.9449,-0.0119,-0.0119,0.0058
+FINDHR,6,minimo 6 documenti per foglia,5,5,0.9567,0.9518,-0.0049,-0.0049,0.1185
+FINDHR,6,minimo 10 documenti per foglia,5,5,0.9567,0.9509,-0.0059,-0.0059,0.0541
+FINDHR,6,foresta nella cella (non interpretabile),5,5,0.9567,0.9699,0.0132,0.0132,0.0001
+FINDHR,10,kNN pesato per distanza,5,5,0.9516,0.9429,-0.0086,-0.0086,0.0091
+FINDHR,10,minimo 6 documenti per foglia,5,5,0.9516,0.949,-0.0026,-0.0026,0.1856
+FINDHR,10,minimo 10 documenti per foglia,5,5,0.9516,0.949,-0.0026,-0.0026,0.1801
+FINDHR,10,foresta nella cella (non interpretabile),5,5,0.9516,0.9651,0.0136,0.0136,0.0003
+FINDHRLIST,1,kNN pesato per distanza,5,5,0.977,0.9743,-0.0027,-0.0027,0.0061
+FINDHRLIST,1,minimo 6 documenti per foglia,5,5,0.977,0.9725,-0.0045,-0.0045,0.0059
+FINDHRLIST,1,minimo 10 documenti per foglia,5,5,0.977,0.9622,-0.0147,-0.0147,0.0
+FINDHRLIST,1,foresta nella cella (non interpretabile),5,5,0.977,0.9806,0.0036,0.0036,0.0093
+FINDHRLIST,2,kNN pesato per distanza,5,5,0.9752,0.9724,-0.0029,-0.0029,0.0204
+FINDHRLIST,2,minimo 6 documenti per foglia,5,5,0.9752,0.9758,0.0005,0.0005,0.6848
+FINDHRLIST,2,minimo 10 documenti per foglia,5,5,0.9752,0.9734,-0.0019,-0.0019,0.0462
+FINDHRLIST,2,foresta nella cella (non interpretabile),5,5,0.9752,0.9807,0.0054,0.0054,0.0002
+FINDHRLIST,4,kNN pesato per distanza,5,5,0.975,0.9692,-0.0058,-0.0058,0.0039
+FINDHRLIST,4,minimo 6 documenti per foglia,5,5,0.975,0.9756,0.0007,0.0007,0.6072
+FINDHRLIST,4,minimo 10 documenti per foglia,5,5,0.975,0.9741,-0.0009,-0.0009,0.4464
+FINDHRLIST,4,foresta nella cella (non interpretabile),5,5,0.975,0.9816,0.0066,0.0066,0.0
+FINDHRLIST,6,kNN pesato per distanza,5,5,0.9728,0.9689,-0.0038,-0.0038,0.0325
+FINDHRLIST,6,minimo 6 documenti per foglia,5,5,0.9728,0.9754,0.0026,0.0026,0.0312
+FINDHRLIST,6,minimo 10 documenti per foglia,5,5,0.9728,0.9749,0.0022,0.0022,0.0859
+FINDHRLIST,6,foresta nella cella (non interpretabile),5,5,0.9728,0.9811,0.0084,0.0084,0.0
+FINDHRLIST,10,kNN pesato per distanza,5,5,0.9741,0.966,-0.0081,-0.0081,0.0
+FINDHRLIST,10,minimo 6 documenti per foglia,5,5,0.9741,0.9737,-0.0004,-0.0004,0.8307
+FINDHRLIST,10,minimo 10 documenti per foglia,5,5,0.9741,0.9736,-0.0005,-0.0005,0.8699
+FINDHRLIST,10,foresta nella cella (non interpretabile),5,5,0.9741,0.9827,0.0085,0.0085,0.0

@@ -63,6 +63,9 @@ def confronta(base: Path, dataset: str):
             qp = pd.concat(query["rtr"], axis=1).mean(axis=1)
             qg = pd.concat(query["rtrwrulecard"], axis=1).mean(axis=1)
             d = (qg - qp).dropna()
+            # il gain e' la media delle differenze per query, calcolata PRIMA di
+            # scartare i pareggi: il Wilcoxon li toglie, la media no
+            riga["gain"] = round(float(d.mean()), 4)
             d = d[d != 0]
             riga["query_meglio_gam"] = int((d > 0).sum())
             riga["query_meglio_pdt"] = int((d < 0).sum())

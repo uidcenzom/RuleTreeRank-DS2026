@@ -75,6 +75,9 @@ def confronta(cartelle):
                 if base_q is not None and query:
                     q = pd.concat(query, axis=1).mean(axis=1)
                     d = (q - base_q).dropna()
+                    # il gain e' la media delle differenze per query, calcolata PRIMA di
+                    # scartare i pareggi: il Wilcoxon li toglie, la media no
+                    riga[f"gain_{etichetta}"] = round(float(d.mean()), 4)
                     d = d[d != 0]
                     riga[f"p_{etichetta}"] = round(wilcoxon(d).pvalue, 4) if len(d) else None
             righe.append(riga)

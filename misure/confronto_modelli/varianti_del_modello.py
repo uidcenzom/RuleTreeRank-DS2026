@@ -68,6 +68,9 @@ def main():
                 if v is None:
                     continue
                 d = (v - base).dropna()
+                # il gain e' la media delle differenze per query, calcolata PRIMA di
+                # scartare i pareggi: il Wilcoxon li toglie, la media no
+                gain = float(d.mean())
                 d = d[d != 0]
                 righe.append({
                     "dataset": dataset,
@@ -78,6 +81,7 @@ def main():
                     "riferimento": round(float(base.mean()), 4),
                     "con_la_variante": round(float(v.mean()), 4),
                     "differenza": round(float(v.mean() - base.mean()), 4),
+                    "gain": round(gain, 4),
                     "p": round(float(wilcoxon(d).pvalue), 4) if len(d) else None,
                 })
 

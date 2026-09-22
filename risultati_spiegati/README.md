@@ -79,7 +79,11 @@ modello di distanza.
 
 **Media +0.0038, positiva in 10 combinazioni su 10, significativa in 6 su 10.**
 
-File: `confronto_multiseed_server.csv`.
+File: `confronto_multiseed_server.csv`. La colonna **`gain`** è il confronto
+appaiato: per ogni query la differenza di NDCG@10 fra i due modelli, poi la media
+di quelle differenze. Coincide con la colonna `differenza` perché l'NDCG
+complessivo che salviamo è la media semplice di quelli per query, quindi fare
+prima le differenze o prima le medie dà lo stesso numero.
 
 ## 4. Il collo di bottiglia non è la distanza, è la correzione dentro la cella
 
@@ -109,7 +113,9 @@ la cella con la foresta.
 > guadagnare, il pezzo su cui conviene lavorare è quello che succede dentro la
 > cella, non la distanza che sceglie i vicini».
 
-File: `distanza_o_aggregazione.csv`.
+File: `distanza_o_aggregazione.csv`. Anche qui `gain_distanza` e
+`gain_aggregazione` sono gli stessi guadagni calcolati come media delle
+differenze query per query.
 
 Rimisurato con cinque semi, quel +0.0086 è positivo e significativo in **dieci
 combinazioni su dieci**: è l'evidenza più solida che abbiamo, più forte del
