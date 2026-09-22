@@ -9,8 +9,10 @@ distanza e il kNN uniforme come aggregatore. Ogni variante cambia un pezzo solo:
                     scelgono, con i pesi contano anche i valori della distanza
   minimo per foglia un vincolo sul numero di documenti di training in ogni foglia
                     del primo stadio, che rende le celle piu' grandi
-  foresta nella cella  l'aggregatore diventa una foresta che guarda direttamente le
-                    feature: non e' interpretabile, sta qui come upper bound
+  foresta nella cella  non e' un aggregatore: sostituisce tutta la correzione
+                    dentro la cella, senza distanza e senza vicini, addestrandosi
+                    dalle feature al residuo. Non e' interpretabile, sta qui come
+                    upper bound
 
 I run dei semi stanno in cartelle diverse (il primo seme e' stato pubblicato,
 gli altri no), quindi lo script accetta piu' radici e le unisce senza contare due

@@ -2,7 +2,9 @@
 
 Questa cartella è una guida ai risultati per chi non lavora dentro il repository.
 Contiene solo due cose: le tabelle che servono e il commento che le rende
-leggibili. Ogni tabella è un CSV in questa stessa cartella, e per ognuna è
+leggibili. Chi vuole anche vedere **come** sono calcolati i numeri trova accanto
+a questo file il notebook `risultati.ipynb`: ricalcola tutto dai file delle
+esecuzioni, gira in pochi secondi e non richiede i dataset. Ogni tabella è un CSV in questa stessa cartella, e per ognuna è
 indicato da quale script di `misure/` proviene, se qualcuno volesse risalire al
 calcolo.
 
@@ -171,14 +173,19 @@ File: `scala_dei_modelli.csv`.
 
 ## 6. Quanto costa
 
-Mediana del tempo di addestramento di un modello, misurata sui run pubblicati:
+Mediana del tempo di addestramento di un modello, misurata sui run pubblicati.
+Il rapporto non è costante: cresce al diminuire del numero di query per modello,
+perché con gruppi piccoli le celle sono tante e la GAM va costruita in ognuna.
 
-| dataset | RTR con PDT | RTRwRuleCard con GAM | rapporto |
-|---|---|---|---|
-| FINDHR | 11.7 s | 264.3 s | **22.6×** |
-| FINDHRℓ | 14.7 s | 166.8 s | **11.4×** |
+| dataset | query per modello | RTR con PDT | RTRwRuleCard con GAM | rapporto |
+|---|---|---|---|---|
+| FINDHR | 1 | 31.0 s | 746.9 s | 24.1× |
+| FINDHR | 10 | 10.8 s | 140.7 s | 13.0× |
+| FINDHRℓ | 1 | 34.0 s | 447.2 s | 13.2× |
+| FINDHRℓ | 10 | 12.4 s | 88.4 s | 7.1× |
 
-È il prezzo della GAM: guadagna poco e costa da dieci a venti volte tanto.
+Su tutte e dieci le combinazioni il rapporto va da **7.1 a 29.2 volte**, con media
+16.2. È il prezzo della GAM: guadagna poco e costa da sette a trenta volte tanto.
 
 ## 7. La selezione degli iperparametri, e una correzione del 21 settembre
 
@@ -235,3 +242,4 @@ File: `tre_fold_contro_dieci.csv` (quali profondità vengono scelte) e
 | `tre_fold_contro_dieci.csv` | come si sposta la profondità scelta passando da tre a dieci fold |
 | `tre_fold_contro_dieci_test.csv` | l'effetto delle due selezioni sul test |
 | `varianti_del_modello.csv` | le varianti del primo e del secondo stadio contro il riferimento |
+| `risultati.ipynb` | il notebook che ricalcola i numeri dai file delle esecuzioni, con i commenti passo per passo |

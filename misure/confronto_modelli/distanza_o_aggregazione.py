@@ -6,7 +6,14 @@ dei vicini con un kNN. Questo script confronta, a partire dallo stesso modello d
 riferimento (RTR con il PDT), due interventi separati e misurati sugli stessi run:
 
   distanza      si sostituisce il PDT con la GAM di RuleCard, lasciando il kNN
-  aggregazione  si lascia il PDT e si sostituisce il kNN con una foresta
+  aggregazione  si sostituisce tutta la correzione dentro la cella con una foresta
+
+Attenzione a come si legge il secondo intervento: la foresta non e' un aggregatore
+che combina i vicini scelti dalla distanza. Non usa la distanza appresa e non cerca
+nessun vicino, si addestra sui documenti della cella dalle feature al residuo. Quindi
+i due interventi non sono simmetrici, il secondo cambia piu' cose del primo. La
+colonna si chiama ancora `aggregazione` perche' e' il nome con cui le tabelle sono
+gia' pubblicate.
 
 Per ogni dataset e |phi| riporta la media sui seed, la differenza rispetto al
 riferimento e un test di Wilcoxon appaiato sull'NDCG@10 delle singole query,
