@@ -105,8 +105,8 @@ def main():
               f"significativa in {significative} su {len(sotto)}, "
               f"semi {semi}")
 
-    print("\nIl solo cambio di seme sposta l'NDCG di circa 0.0035: una differenza")
-    print("piu' piccola di cosi' non si distingue dal rumore.")
+    print("\nIl confronto appaiato fra due semi dello stesso modello ha deviazione standard")
+    print("0.0010 e nel 95% dei casi sta sotto 0.0023 (misure/analisi/rumore_del_seme.py).")
 
     uscita = Path(__file__).with_suffix(".csv")
     t.to_csv(uscita, index=False)

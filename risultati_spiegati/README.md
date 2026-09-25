@@ -50,8 +50,11 @@ ma `n_neighbors` non entra nella predizione.
   fra divisioni ugualmente buone, quindi lo stesso codice sugli stessi dati dà
   risultati un po' diversi a ogni esecuzione. Ogni configurazione è perciò
   eseguita **cinque volte con cinque semi diversi** e i numeri riportati sono le
-  medie. Il solo cambio di seme sposta l'NDCG di circa 0.0035: è il metro con cui
-  giudicare se una differenza è reale.
+  medie. Quanto pesa il seme è misurato, non stimato
+  (`misure/analisi/rumore_del_seme.py`): applicando lo stesso confronto appaiato a
+  due semi dello stesso modello, il guadagno apparente ha deviazione standard 0.0010
+  e nel 95% dei casi sta sotto 0.0023. È il metro con cui giudicare se una
+  differenza è reale.
 - **i due dataset**: **FINDHR** e **FINDHRℓ** (la variante con l'etichetta
   listwise). Ogni query ha esattamente 280 documenti.
 - **|φ|**: quante query vede un singolo modello. Usiamo |φ| ∈ {1, 2, 4, 6, 10}.
