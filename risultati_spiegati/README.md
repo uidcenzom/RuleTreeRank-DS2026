@@ -256,6 +256,32 @@ riferimento presa dal paper era quindi più vicina al meglio disponibile al
 modello additivo che al meglio disponibile all'albero, e parte del +0.0038 della
 sezione 3 veniva da lì.
 
+**Attenzione a che cosa confronta questo numero**, perché non è lo stesso
+confronto della sezione 3. A configurazione fissa i due bracci condividono tutto
+tranne il modello di distanza, e si verifica nei file: il riferimento euclideo
+misurato dentro ciascun braccio coincide fino alla quarta cifra. Con la selezione
+no, perché la selezione sceglie anche la profondità del primo stadio, il numero
+di vicini e il bersaglio, separatamente sui due bracci. La configurazione scelta
+è identica sui due bracci in **9 gruppi su 202** su FINDHR e in **4 su 202** su
+FINDHRℓ; la profondità del primo stadio coincide in 163 e 138 gruppi, il numero
+di vicini in 141 e 86. Il +0.0007 confronta quindi **due sistemi regolati**, non
+due distanze dentro la stessa pipeline.
+
+Una quantità resta confrontabile fra i bracci, perché si calcola dentro la
+pipeline di ciascuno: quanto il secondo stadio aggiunge al solo primo stadio.
+Mediata sulle dieci combinazioni è **+0.0125 sul braccio con il PDT e +0.0155 su
+quello additivo**, differenza +0.0030 non significativa in nessuna combinazione
+(p più piccolo 0.124). Il secondo stadio additivo fa ancora un po' più lavoro;
+quello che il confronto complessivo dice è che i due sistemi regolati arrivano
+allo stesso punto, non che le due distanze siano equivalenti.
+
+Un'ultima cosa che cambia leggendo i due regimi insieme: **che il PDT non
+raggiunga il kNN euclideo dentro la cella vale alla profondità di riferimento**,
+che è 4, dove sta sotto in dieci combinazioni su dieci di 0.0035 in media. Con le
+configurazioni scelte, dove l'albero può essere più profondo, ci arriva anche
+lui: sotto in quattro combinazioni su dieci e sopra di 0.0002 in media. È un
+limite di capacità a quella profondità, non un limite del bersaglio.
+
 Le due affermazioni da tenere insieme, senza sceglierne una sola: la distanza
 additiva migliora l'ordinamento **a parità di configurazione**, in modo costante
 e di poco; **non** lo migliora quando ciascun braccio è regolato sui dati.

@@ -72,6 +72,11 @@ Cosa conta fra gli iperparametri e come si scelgono.
   con il PDT lo cambia in tutti. Fa i tre controlli in ordine, compreso quello
   che ha scartato la prima spiegazione che avevo scritto. Va eseguito sul server,
   dove stanno i file della selezione
+- `quanto_divergono_i_bracci.py`: quanto si allontanano le configurazioni scelte
+  per i due bracci. Serve a sapere che cosa confronta davvero il risultato a
+  configurazione scelta: la configurazione coincide in 9 gruppi su 202 su FINDHR
+  e in 4 su FINDHRlist, quindi si confrontano due sistemi regolati e non due
+  distanze dentro la stessa pipeline
 - `tre_fold_contro_dieci.py`: la stessa selezione fatta con tre fold e con dieci.
   Confronta le profondità scelte nei due casi e, se i run riaddestrati esistono,
   l'effetto sul test. È la misura che mostra che il difetto sta nella procedura
