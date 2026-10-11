@@ -8,7 +8,7 @@ esecuzioni, gira in pochi secondi e non richiede i dataset. Ogni tabella è un C
 indicato da quale script di `misure/` proviene, se qualcuno volesse risalire al
 calcolo.
 
-Aggiornata al 22 settembre 2026.
+Aggiornata all'11 ottobre 2026.
 
 ---
 
@@ -83,6 +83,9 @@ modello di distanza.
 | FINDHRℓ | 10 | 0.9741 | 0.9769 | +0.0027 | **0.002** |
 
 **Media +0.0038, positiva in 10 combinazioni su 10, significativa in 6 su 10.**
+Vale a parità di configurazione: con la configurazione scelta per gruppo su
+entrambi i bracci il margine scende a +0.0007 e non è significativo in nessuna
+combinazione, vedi la sezione 8.
 
 File: `confronto_multiseed_server.csv`. La colonna **`gain`** è il confronto
 appaiato: per ogni query la differenza di NDCG@10 fra i due modelli, poi la media
@@ -222,18 +225,63 @@ come ottimistici.
 File: `tre_fold_contro_dieci.csv` (quali profondità vengono scelte) e
 `tre_fold_contro_dieci_test.csv` (l'effetto sul test).
 
-## 8. Cosa non è ancora deciso
+## 8. Il confronto a configurazione scelta, rifatto a dieci fold
 
-1. La tabella a **configurazione scelta per gruppo** (`configurazione_scelta.csv`)
-   è stata prodotta con la selezione a **tre fold**, cioè con la procedura che ora
-   sappiamo difettosa. Per rifarla in modo pulito serve la selezione a dieci fold
-   anche sul braccio con la GAM, che costa circa dieci volte quella con il PDT.
-   Finché non è fatta, quella riga va considerata provvisoria.
-2. Con la configurazione fissa la GAM è sopra il PDT di +0.0038 (10 su 10); con la
-   configurazione scelta a tre fold il margine scende a +0.0020 (7 su 10). Quale
-   dei due sia il confronto giusto dipende dal punto 1.
+La selezione a dieci fold è stata fatta anche sul braccio con la GAM (finita il
+10 ottobre, 63 ore) e i due bracci sono stati riaddestrati con le configurazioni
+scelte, cinque semi ciascuno. Questa tabella sostituisce quella provvisoria a tre
+fold.
 
-## 9. I file di questa cartella
+| dataset | \|φ\| | PDT | GAM | guadagno | p |
+|---|---|---|---|---|---|
+| FINDHR | 1 | 0.9481 | 0.9467 | −0.0014 | 0.559 |
+| FINDHR | 2 | 0.9540 | 0.9551 | +0.0011 | 0.390 |
+| FINDHR | 4 | 0.9572 | 0.9591 | +0.0019 | 0.488 |
+| FINDHR | 6 | 0.9601 | 0.9622 | +0.0021 | 0.215 |
+| FINDHR | 10 | 0.9595 | 0.9595 | −0.0001 | 0.315 |
+| FINDHRℓ | 1 | 0.9780 | 0.9791 | +0.0011 | 0.758 |
+| FINDHRℓ | 2 | 0.9795 | 0.9798 | +0.0002 | 0.641 |
+| FINDHRℓ | 4 | 0.9766 | 0.9787 | +0.0021 | 0.386 |
+| FINDHRℓ | 6 | 0.9798 | 0.9803 | +0.0006 | 0.722 |
+| FINDHRℓ | 10 | 0.9801 | 0.9797 | −0.0004 | 0.602 |
+
+**Media +0.0007, positiva in 7 combinazioni su 10, significativa in nessuna.** Il
+p più piccolo è 0.215, e il guadagno medio sta sotto la deviazione standard del
+rumore del seme, che è 0.0010: con la configurazione scelta per gruppo i due
+bracci sono indistinguibili.
+
+Letto braccio per braccio, la selezione rende **+0.0020 al PDT e −0.0031 alla
+GAM** su FINDHR, **+0.0040 e +0.0029** su FINDHRℓ. La configurazione di
+riferimento presa dal paper era quindi più vicina al meglio disponibile al
+modello additivo che al meglio disponibile all'albero, e parte del +0.0038 della
+sezione 3 veniva da lì.
+
+Le due affermazioni da tenere insieme, senza sceglierne una sola: la distanza
+additiva migliora l'ordinamento **a parità di configurazione**, in modo costante
+e di poco; **non** lo migliora quando ciascun braccio è regolato sui dati.
+
+Una cosa emersa dalla selezione e che vale la pena sapere: sul braccio additivo
+la profondità dei learner (`pdt_depth`) non cambia il punteggio di convalida in
+**nessuno dei 202 gruppi** dei due dataset, mentre sul braccio con il PDT lo
+cambia in tutti. Le feature sono categoriche, otto su nove prendono al più tre
+valori distinti, quindi un albero univariato di profondità 2 esaurisce gli split
+disponibili su quasi tutte le colonne della rappresentazione di coppia. Sul
+braccio additivo la griglia effettiva è di 48 configurazioni e non 144.
+
+File: `configurazione_scelta_fold10.csv`, da
+`misure/confronto_modelli/configurazione_scelta_fold10.py`; l'effetto per braccio
+da `misure/iperparametri/effetto_della_selezione.py`.
+
+## 9. Cosa non è ancora deciso
+
+1. I dataset sono due e vengono dalla stessa matrice di compatibilità. Gli altri
+   (MQ2007 e seguenti) non sono bloccati da nessuno, ma costano tempo macchina.
+2. Nessuna delle alternative interpretabili provate dentro la cella batte la
+   media uniforme dei vicini, mentre una foresta, che non è interpretabile, rende
+   più del doppio del guadagno ottenuto cambiando la distanza. Un aggregatore
+   leggibile che prenda parte di quel margine resta la domanda aperta più utile.
+
+## 10. I file di questa cartella
 
 | file | cosa contiene |
 |---|---|
@@ -241,7 +289,8 @@ File: `tre_fold_contro_dieci.csv` (quali profondità vengono scelte) e
 | `distanza_o_aggregazione.csv` | guadagno cambiando la distanza contro guadagno cambiando l'aggregatore |
 | `scala_dei_modelli.csv` | tutti i modelli, dal caso agli upper bound non interpretabili |
 | `ablation.csv` | modello completo, senza informazione di query (RTR*), solo `r(x)`, solo `s(x)` |
-| `configurazione_scelta.csv` | confronto a configurazione fissa e a configurazione scelta (provvisoria, vedi §8) |
+| `configurazione_scelta.csv` | confronto a configurazione fissa e a configurazione scelta a tre fold, superato da quello a dieci |
+| `configurazione_scelta_fold10.csv` | il confronto a configurazione scelta con la selezione a dieci fold su entrambi i bracci (§8) |
 | `tre_fold_contro_dieci.csv` | come si sposta la profondità scelta passando da tre a dieci fold |
 | `tre_fold_contro_dieci_test.csv` | l'effetto delle due selezioni sul test |
 | `varianti_del_modello.csv` | le varianti del primo e del secondo stadio contro il riferimento |

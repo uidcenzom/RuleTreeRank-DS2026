@@ -1,0 +1,17 @@
+dataset,braccio,frazione,semi,ndcg,ndcg_std,tempo_fit_s,ndcg_meno_pieno,tempo_su_pieno,quota_celle_con_gam,quota_celle_fit_fallito
+FINDHR,rtr,0.1,3,0.9487,0.0015,16.3,-0.0036,0.876,nan,nan
+FINDHR,rtr,0.25,3,0.9509,0.0016,17.5,-0.0014,0.941,nan,nan
+FINDHR,rtr,0.5,3,0.9505,0.0017,18.2,-0.0017,0.975,nan,nan
+FINDHR,rtr,1.0,3,0.9522,0.0017,18.6,0.0,1.0,nan,nan
+FINDHR,rtrwrulecard,0.1,3,0.9508,0.0015,273.2,-0.0023,0.318,0.101,0.636
+FINDHR,rtrwrulecard,0.25,3,0.9522,0.0016,372.5,-0.0009,0.433,0.266,0.42
+FINDHR,rtrwrulecard,0.5,3,0.9529,0.0012,459.4,-0.0002,0.534,0.446,0.214
+FINDHR,rtrwrulecard,1.0,3,0.9531,0.0016,860.1,0.0,1.0,0.679,0.0
+FINDHRLIST,rtr,0.1,3,0.9758,0.0006,21.7,-0.0014,0.886,nan,nan
+FINDHRLIST,rtr,0.25,3,0.9768,0.0005,23.6,-0.0003,0.962,nan,nan
+FINDHRLIST,rtr,0.5,3,0.9781,0.0002,28.0,0.001,1.142,nan,nan
+FINDHRLIST,rtr,1.0,3,0.9771,0.0002,24.5,0.0,1.0,nan,nan
+FINDHRLIST,rtrwrulecard,0.1,3,0.9758,0.0004,98.3,-0.0028,0.153,0.061,0.602
+FINDHRLIST,rtrwrulecard,0.25,3,0.9776,0.0006,312.4,-0.0011,0.486,0.219,0.404
+FINDHRLIST,rtrwrulecard,0.5,3,0.9782,0.0006,371.1,-0.0005,0.578,0.373,0.214
+FINDHRLIST,rtrwrulecard,1.0,3,0.9787,0.0001,642.2,0.0,1.0,0.601,0.0

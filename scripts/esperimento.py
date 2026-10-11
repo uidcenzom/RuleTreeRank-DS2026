@@ -72,6 +72,9 @@ def leggi_argomenti():
                    help="numero minimo di documenti di training per foglia nel primo stadio")
     p.add_argument("--sdt-depth", type=int, default=5, help="profondità dell'albero del primo stadio")
     p.add_argument("--pdt-depth", type=int, default=4, help="profondità dell'albero della distanza")
+    p.add_argument("--subsample", type=float, default=1.0,
+                   help="frazione dei documenti della cella da cui si costruiscono le coppie: "
+                        "1.0 le usa tutte, 0.5 ne usa metà e quindi un quarto delle coppie")
     p.add_argument("--dist-objective", default="dist", choices=["dist", "y", "residuals"],
                    help="bersaglio su cui si allena il modello di distanza")
     p.add_argument("--senza-feature-diff", action="store_true",
@@ -106,6 +109,9 @@ def nome_variante(args):
         nome += f"_sdt{args.sdt_depth}"
     if args.pdt_depth != 4:
         nome += f"_pdt{args.pdt_depth}"
+    if args.subsample != 1.0:
+        # 0.25 diventa "sub025", cosi' il nome resta un identificatore semplice
+        nome += "_sub%03d" % round(args.subsample * 100)
     if args.dist_objective != "dist":
         nome += f"_{args.dist_objective}"
     if args.senza_feature_diff:
@@ -128,7 +134,8 @@ def parametri_variante(args):
     # comando perché sono proprio quelli che la model selection fa variare sulla griglia.
     rtr = dict(sdt_depth=args.sdt_depth, pdt_depth=args.pdt_depth, n_neighbors=args.k,
                feature_diff=not args.senza_feature_diff, dist_objective=args.dist_objective,
-               feature_concat=True, feature_sq_diff=False, subsample=1.0, sdt_max_leaf_nodes=None,
+               feature_concat=True, feature_sq_diff=False, subsample=args.subsample,
+               sdt_max_leaf_nodes=None,
                min_samples_split=2, verbose=False, n_jobs_leaf=args.n_jobs_leaf,
                knn_pesato=args.knn_pesato, min_doc_foglia=args.min_doc_foglia,
                senza_foglie=args.senza_foglie, foresta_in_foglia=args.foresta_in_foglia,
@@ -368,7 +375,7 @@ def main():
     opzioni_del_modello = (args.k != 5 or args.knn_pesato or args.min_doc_foglia or args.sdt_depth != 5
                            or args.pdt_depth != 4 or args.dist_objective != "dist" or args.senza_feature_diff
                            or args.senza_query or args.senza_foglie or args.foresta_in_foglia
-                           or args.configurazioni)
+                           or args.configurazioni or args.subsample != 1.0)
     if args.variante not in ("rtr", "rtrwrulecard") and opzioni_del_modello:
         raise SystemExit("le opzioni del modello valgono solo per rtr e rtrwrulecard")
     cls, params = parametri_variante(args)
