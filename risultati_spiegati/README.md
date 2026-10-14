@@ -284,9 +284,10 @@ allo stesso punto, non che le due distanze siano equivalenti.
 Un'ultima cosa che cambia leggendo i due regimi insieme: **che il PDT non
 raggiunga il kNN euclideo dentro la cella vale alla profondità di riferimento**,
 che è 4, dove sta sotto in dieci combinazioni su dieci di 0.0035 in media. Con le
-configurazioni scelte, dove l'albero può essere più profondo, ci arriva anche
-lui: sotto in quattro combinazioni su dieci e sopra di 0.0002 in media. È un
-limite di capacità a quella profondità, non un limite del bersaglio.
+configurazioni scelte ci arriva anche lui: sotto in quattro combinazioni su dieci
+e sopra di 0.0002 in media. Ma la selezione cambia insieme alla profondità anche
+il primo stadio, il numero di vicini e il bersaglio, quindi questo non isola il
+ruolo della profondità (corretto il 15 ottobre dopo la revisione della tesi).
 
 Le due affermazioni da tenere insieme, senza sceglierne una sola: la distanza
 additiva migliora l'ordinamento **a parità di configurazione**, in modo costante
