@@ -270,9 +270,15 @@ due distanze dentro la stessa pipeline.
 Una quantità resta confrontabile fra i bracci, perché si calcola dentro la
 pipeline di ciascuno: quanto il secondo stadio aggiunge al solo primo stadio.
 Mediata sulle dieci combinazioni è **+0.0125 sul braccio con il PDT e +0.0155 su
-quello additivo**, differenza +0.0030 non significativa in nessuna combinazione
-(p più piccolo 0.124). Il secondo stadio additivo fa ancora un po' più lavoro;
-quello che il confronto complessivo dice è che i due sistemi regolati arrivano
+quello additivo**, differenza +0.0030. Con Wilcoxon non è significativa in nessuna combinazione
+(p più piccolo 0.124); con il t appaiato e il test di permutazione lo è in una,
+FINDHRℓ a |φ| = 10 (+0.0281, p ≤ 0.001), dove la selezione ha dato al braccio
+additivo un primo stadio più debole (0.9402 contro 0.9686) e i due modelli
+completi finiscono a 0.9797 e 0.9801. La differenza viene da poche query: mediana
+zero, cinque query su cento ne fanno più di metà
+(`misure/confronto_modelli/tre_test_sui_confronti.py`). Il secondo stadio
+additivo fa in media ancora un po' più lavoro, in parte per compensare un primo
+stadio più debole; quello che il confronto complessivo dice è che i due sistemi regolati arrivano
 allo stesso punto, non che le due distanze siano equivalenti.
 
 Un'ultima cosa che cambia leggendo i due regimi insieme: **che il PDT non
