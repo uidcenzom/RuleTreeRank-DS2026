@@ -10,6 +10,9 @@ Confronti coperti, tutti sull'NDCG@10 per query mediato sui cinque semi:
   1. secondo stadio sul primo, braccio additivo contro PDT, a configurazione scelta
   2. selezione per gruppo a tre e a dieci fold contro la configurazione fissa (PDT)
   3. foresta nella cella contro RTR con il PDT
+  4. le tre varianti interpretabili della tabella sulle componenti alternative
+     (pesatura dei vicini, almeno 6 e almeno 10 documenti per foglia), il cui
+     seme 0 sta in `risultati/` e i semi da 1 a 4 in `risultati_semi/`
 
 Uso, dalla radice del repository:
   python misure/confronto_modelli/tre_test_sui_confronti.py [run a dieci fold]
@@ -28,6 +31,7 @@ from scipy.stats import ttest_1samp, wilcoxon
 RISULTATI = Path("risultati")
 SCELTA_TRE = Path("risultati_scelta")
 SCELTA_DIECI = Path(sys.argv[1] if len(sys.argv) > 1 else "risultati_scelta_fold10")
+SEMI = Path(sys.argv[2] if len(sys.argv) > 2 else "risultati_semi")
 DATASET = ["FINDHR", "FINDHRLIST"]
 PHI = [1, 2, 4, 6, 10]
 RICAMPIONAMENTI = 100_000
@@ -35,8 +39,14 @@ GENERATORE = np.random.default_rng(0)
 
 
 def per_query(radice, dataset, variante, phi, colonna="completo"):
-    serie = [pd.read_csv(f).set_index("query")[colonna]
-             for f in sorted((radice / dataset / variante / f"phi{phi}").glob("seed*/ndcg_per_query.csv"))]
+    radici = radice if isinstance(radice, (list, tuple)) else [radice]
+    file, visti = [], set()
+    for r in radici:
+        for f in sorted((r / dataset / variante / f"phi{phi}").glob("seed*/ndcg_per_query.csv")):
+            if f.parent.name not in visti:
+                visti.add(f.parent.name)
+                file.append(f)
+    serie = [pd.read_csv(f).set_index("query")[colonna] for f in file]
     if len(serie) < 5:
         return None
     return pd.concat(serie, axis=1).mean(axis=1)
@@ -95,6 +105,19 @@ def main():
                 continue
             righe.append((ds, phi, (foresta - base).dropna().values))
     stampa("3. foresta nella cella meno RTR con il PDT", righe)
+
+    for variante, nome in (("rtr_pesato", "pesatura dei vicini (tesi: peggiore 10, significativa 8)"),
+                           ("rtr_minfoglia6", "almeno 6 per foglia (tesi: positiva 4, significativa 2)"),
+                           ("rtr_minfoglia10", "almeno 10 per foglia (tesi: positiva 2, significativa 2)")):
+        righe = []
+        for ds in DATASET:
+            for phi in PHI:
+                base = per_query(RISULTATI, ds, "rtr", phi)
+                v = per_query([RISULTATI, SEMI], ds, variante, phi)
+                if base is None or v is None:
+                    continue
+                righe.append((ds, phi, (v - base).dropna().values))
+        stampa(f"4. {nome}", righe)
 
 
 if __name__ == "__main__":
